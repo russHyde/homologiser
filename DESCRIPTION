@@ -1,0 +1,21 @@
+Package: homologiser
+Type: Package
+Title: Map Genes To Their Homologues In A Different Species
+Version: 0.1.0
+Author: Russ Hyde, University of Glasgow
+Maintainer: Russ Hyde <yourself@somewhere.net>
+Description: Provides some helper functions that make it easy to map from a
+  set of genes to their homologues in another species. One-to-one homologues
+  can be returned if requested. Uses Ensembl (biomaRt) databases.
+License: MIT + file LICENSE
+Encoding: UTF-8
+LazyData: true
+RoxygenNote: 6.0.1
+URL: https://github.com/russHyde/homologiser
+BugReports: https://github.com/russHyde/homologiser/issues
+Suggests: testthat
+Imports: dplyr,
+    magrittr
+Collate: 
+    'data_manipulation.R'
+    'homologue_functions.R'
