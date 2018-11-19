@@ -15,7 +15,9 @@ URL: https://github.com/russHyde/homologiser
 BugReports: https://github.com/russHyde/homologiser/issues
 Suggests: testthat
 Imports: dplyr,
-    magrittr
-Collate: 
+    magrittr,
+    RCurl,
+    biomaRt
+Collate:
     'data_manipulation.R'
     'homologue_functions.R'

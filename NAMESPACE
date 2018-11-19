@@ -2,6 +2,9 @@
 
 export(drop_incomplete_cases)
 export(get_duplicates)
+importFrom(RCurl,url.exists)
+importFrom(biomaRt,useDataset)
+importFrom(biomaRt,useMart)
 importFrom(dplyr,filter_)
 importFrom(dplyr,select_)
 importFrom(magrittr,"%>%")

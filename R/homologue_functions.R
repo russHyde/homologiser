@@ -117,3 +117,39 @@ which_mappings_are_one_to_many <- function(
 
   return(duplicated)
 }
+
+###############################################################################
+
+#' use_default_mart
+#'
+#' Sets up a default biomaRt `mart` object for use in searches
+#'
+#' @param        sp            A species name (eg, "hsapiens", "mmusculus") as
+#'   used in biomaRt.
+#' @param        host          The name of the site that hosts the mart
+#'   database.
+#' @param        mart_name     The name of the biomart dataset that should be
+#'   used.
+#'
+#' @importFrom   RCurl         url.exists
+#' @importFrom   biomaRt       useMart   useDataset
+
+use_default_mart <- function(
+                             sp = "hsapiens",
+                             host = "www.ensembl.org",
+                             mart_name = "ENSEMBL_MART_ENSEMBL") {
+  # returns a default biomart dataset for the given species
+  stopifnot(RCurl::url.exists(host))
+
+  bm <- biomaRt::useMart(
+    biomart = mart_name,
+    host = host
+  )
+
+  ds <- biomaRt::useDataset(
+    dataset = paste(sp, "gene", "ensembl", sep = "_"),
+    mart = bm
+  )
+
+  ds
+}

@@ -251,3 +251,53 @@ test_that("keep_only_one_to_one_homologues: valid input", {
 })
 
 ###############################################################################
+test_that(
+  "use_default_mart", {
+
+    # Test that a valid Mart object is returned
+    expect_true(
+      is(use_default_mart(), "Mart"),
+      info = "test that a valid mart is returned"
+    )
+
+    # Test that a valid Mart object is returned - using named args
+    expect_true(
+      is(
+        use_default_mart(
+          sp = "hsapiens",
+          host = "www.ensembl.org",
+          mart_name = "ENSEMBL_MART_ENSEMBL"
+        ),
+        "Mart"
+      ),
+      info = "test that a valid mart is returned"
+    )
+
+    # species name, hostname and martname should all be valid in
+    # use_default_mart
+    expect_error(
+      use_default_mart(
+        sp = "NOT_A_SPECIES",
+        host = "www.ensembl.org",
+        mart_name = "ENSEMBL_MART_ENSEMBL"
+      ),
+      info = "non-standard species name"
+    )
+    expect_error(
+      use_default_mart(
+        sp = "hsapiens",
+        host = "NOT_A_URL",
+        mart_name = "ENSEMBL_MART_ENSEMBL"
+      ),
+      info = "non-standard host URL"
+    )
+    expect_error(
+      use_default_mart(
+        sp = "hsapiens",
+        host = "www.ensembl.org",
+        mart_name = "NOT_A_MARTNAME"
+      ),
+      info = "non-standard mart_name"
+    )
+  }
+)
