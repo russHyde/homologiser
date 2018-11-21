@@ -3,11 +3,6 @@
 context("Tests for homology-filtering functions")
 
 ###############################################################################
-## helpers
-df <- function(...) {
-  data.frame(..., stringsAsFactors = FALSE)
-}
-###############################################################################
 
 test_that("which_mappings_are_one_to_many: invalid input", {
   expect_error(

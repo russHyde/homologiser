@@ -1,40 +1,10 @@
 ###############################################################################
 
-#' use_default_mart
-#'
-#' Sets up a default biomaRt `mart` object for use in searches
-#'
-#' @param        sp            A species name (eg, "hsapiens", "mmusculus") as
-#'   used in biomaRt.
-#' @param        host          The name of the site that hosts the mart
-#'   database.
-#' @param        mart_name     The name of the biomart dataset that should be
-#'   used.
-#'
-#' @importFrom   RCurl         url.exists
-#' @importFrom   biomaRt       useMart   useDataset
-
-use_default_mart <- function(sp = "hsapiens",
-                             host = "www.ensembl.org",
-                             mart_name = "ENSEMBL_MART_ENSEMBL") {
-  # returns a default biomart dataset for the given species
-  stopifnot(RCurl::url.exists(host))
-
-  biomaRt::useMart(
-    biomart = mart_name,
-    dataset = paste(sp, "gene", "ensembl", sep = "_"),
-    host = host
-  )
-}
-
-###############################################################################
-
 #' map_to_ensembl_homologues_with_biomart
 #'
 #' A function to map from a set of `gene_ids` in one species (sp1) to the
 #'   ensembl-gene id of their homologues in a separate species (sp2). The
 #'   mappings are performed using biomart databases.
-#'
 #'
 #' @param        gene_ids      A vector of gene_ids, of format matching
 #'   `idtype_sp1`.
@@ -55,6 +25,9 @@ use_default_mart <- function(sp = "hsapiens",
 #' @importFrom   magrittr      %>%
 #' @importFrom   dplyr         arrange_
 #'
+#' @include      homologue_db.R
+#'
+
 map_to_ensembl_homologues_with_biomart <- function(gene_ids = character(0),
                                                    dataset_sp1 = NULL,
                                                    sp1 = "hsapiens",
@@ -73,7 +46,6 @@ map_to_ensembl_homologues_with_biomart <- function(gene_ids = character(0),
   # Check that the idtype is a valid input to the function
   # - it must be either "entrezgene" or "ensembl_gene_id"
   stopifnot(idtype_sp1 %in% c("entrezgene", "ensembl_gene_id"))
-
 
   # Check that gene_ids is a vector (it can't be missing)
   # - If gene_ids is empty, return empty results
@@ -167,54 +139,6 @@ map_to_ensembl_homologues_with_biomart <- function(gene_ids = character(0),
     stringsAsFactors = FALSE
   ) %>%
     dplyr::arrange_(.dots = c("ID.sp1", "ENSEMBLGENE.sp2"))
-}
-
-###############################################################################
-
-#' get_ensembl_homologue_field
-#'
-#' In an ensembl biomart object, the column that contains the ensembl-gene ids
-#'   for homologues in species `sp` is <sp>_homolog_ensembl_gene, where <sp>
-#'   is the interpolated value of `sp` (eg, mmusculus).
-#'
-#' @param        sp            A species-name contraction, as used in
-#'   ensembl / `biomaRt`, for example, mmusculus for mouse and hsapiens for
-#'   human.
-#'
-get_ensembl_homologue_field <- function(sp) {
-  if (missing(sp) || is.null(sp)) {
-    stop("`sp` should be defined and non-null")
-  }
-  if (!is.character(sp) || grepl(" ", sp)) {
-    stop("`sp` should be a string containing no spaces")
-  }
-
-  paste(sp, "homolog", "ensembl", "gene", sep = "_")
-}
-
-###############################################################################
-
-#' is_valid_mart
-#'
-#' Checks if a user-provided object is a valid `mart` object from the biomaRt
-#'   package; and if it is, where the user-specified id-type is present as one
-#'   of the attributes (ie, columns) of that mart
-#'
-#' @param        mart          A `mart` object from the `biomaRt` package.
-#' @param        id_type       Check that this identifier type is a named
-#'   field / column in the `mart` object.
-#'
-#' @importFrom   biomaRt       listAttributes
-#' @importFrom   methods       is
-
-is_valid_mart <- function(mart,
-                          id_type = "entrezgene") {
-  # checks if the input is a valid biomart dataset
-  # checks that the user-specified id-type is present in the attributes
-
-  !is.null(mart) &&
-    methods::is(mart, "Mart") &&
-    id_type %in% biomaRt::listAttributes(mart)[, 1]
 }
 
 ###############################################################################
