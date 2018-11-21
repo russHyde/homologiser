@@ -10,19 +10,21 @@ map_to_ensembl_homologues_with_biomart(gene_ids = character(0),
   mart_name = "ENSEMBL_MART_ENSEMBL")
 }
 \arguments{
-\item{gene_ids}{A vector of gene_ids, of format matching
-`idtype_sp1`.}
+\item{gene_ids}{A vector of gene identifiers for species `sp1`
+and of type `idtype_sp1`.}
 
-\item{dataset_sp1}{A `biomaRt::Mart` object for the first species.}
+\item{dataset_sp1}{The `biomaRt` dataset that houses the data for
+species `sp1`.}
 
-\item{sp1}{Ensembl contraction of the first species' name
-(eg, hsapiens).}
+\item{sp1}{The name of species 1 (using ensembl prefixes
+like `hsapiens` / `mmusculus`).}
 
-\item{sp2}{Ensembl contraction of the second species' name
-(eg, mmusculus).}
+\item{sp2}{The name of species 2 (using ensembl prefixes
+like `hsapiens` / `mmusculus`).}
 
-\item{idtype_sp1}{The type of id provided for the input species
-(sp1). This should be either "entrezgene" or "ensembl_gene_id".}
+\item{idtype_sp1}{The type of identifier used for species `sp1`;
+this should match one of the field / column names in the biomaRt dataset
+for species `sp1`.}
 
 \item{host}{The URL for the host-site for the biomart
 database.}

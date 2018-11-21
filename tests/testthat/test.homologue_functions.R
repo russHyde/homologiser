@@ -5,6 +5,74 @@ context("Tests for homology-mapping functions")
 ###############################################################################
 
 test_that(
+  "map_to_homologues_oneway", {
+    testthat::skip_if_not(requireNamespace("mockery", quietly = TRUE))
+
+    mock_mart_sp1 <- structure(.Data = "mock-mart", class = "Mart")
+    mock_attribs <- df(
+      name = c(
+        "ensembl_gene_id", "mmusculus_homolog_ensembl_gene", "entrezgene"
+      ),
+      description = c("this gene", "that gene", "another encoding")
+    )
+    mock_mart_sp2 <- structure(.Data = "mock-mart", class = "Mart")
+
+    gene_ids <- c("1", "2")
+    bm_hom <- df(
+      ensembl_gene_id = c("1", "2"),
+      mmusculus_homolog_ensembl_gene = c("A", "B")
+    )
+
+    with_mock(
+      getBM = mockery::mock(bm_hom),
+      listAttributes = mockery::mock(mock_attribs, cycle = TRUE),
+      expect_equal(
+        object = map_to_homologues_oneway(
+          gene_ids, mock_mart_sp1, mock_mart_sp2
+        ),
+        expected = df(
+          ID.sp1 = gene_ids,
+          ID.sp2 = bm_hom$mmusculus_homolog_ensembl_gene
+        ),
+        info = "ensembl-gene to ensembl-gene oneway homology map"
+      ),
+      .env = "biomaRt"
+    )
+
+    gene_ids <- c("1", "2")
+
+    bm_hom <- df(
+      ensembl_gene_id = c("1", "2"),
+      mmusculus_homolog_ensembl_gene = c("A", "B")
+    )
+
+    bm_id_sp2 <- df(
+      ensembl_gene_id = c("A", "B"),
+      entrezgene = c("entrezA", "entrezB")
+    )
+
+    with_mock(
+      getBM = mockery::mock(bm_hom, bm_id_sp2),
+      listAttributes = mockery::mock(mock_attribs, cycle = TRUE),
+      expect_equal(
+        object = map_to_homologues_oneway(
+          gene_ids, mock_mart_sp1, mock_mart_sp2,
+          idtype_sp2 = "entrezgene"
+        ),
+        expected = df(
+          ID.sp1 = gene_ids,
+          ID.sp2 = c("entrezA", "entrezB")
+        ),
+        info = "ensembl to entrez-gene oneway homology map"
+      ),
+      .env = "biomaRt"
+    )
+  }
+)
+
+###############################################################################
+
+test_that(
   "map_to_ensembl_homologues_with_biomart: invalid inputs", {
 
     # An error should arise from passing in a NULL or non-vector gene list
@@ -48,9 +116,7 @@ test_that(
 
     expect_error(
       object = map_to_ensembl_homologues_with_biomart(
-        gene_ids = c("123", "234"),
-        dataset_sp1 = NULL,
-        sp1 = NULL
+        gene_ids = c("123", "234"), dataset_sp1 = NULL, sp1 = NULL
       ),
       info = "A way to define a valid Mart for species 1 should be provided"
     )
@@ -124,6 +190,7 @@ test_that(
     # )
   }
 )
+
 ###############################################################################
 
 test_that(
