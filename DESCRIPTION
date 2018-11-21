@@ -14,11 +14,14 @@ RoxygenNote: 6.0.1
 URL: https://github.com/russHyde/homologiser
 BugReports: https://github.com/russHyde/homologiser/issues
 Suggests: testthat,
-    covr
+    covr,
+    mockery
 Imports: dplyr,
     magrittr,
     RCurl,
-    biomaRt
+    biomaRt,
+    methods
 Collate:
     'data_manipulation.R'
+    'homologue_filters.R'
     'homologue_functions.R'
