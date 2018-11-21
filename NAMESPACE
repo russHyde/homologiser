@@ -2,6 +2,7 @@
 
 export(drop_incomplete_cases)
 export(get_duplicates)
+export(map_to_homologues)
 importFrom(RCurl,url.exists)
 importFrom(biomaRt,getBM)
 importFrom(biomaRt,listAttributes)

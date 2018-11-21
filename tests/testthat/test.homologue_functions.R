@@ -6,7 +6,7 @@ context("Tests for homology-mapping functions")
 
 test_that(
   "map_to_homologues_oneway", {
-    testthat::skip_if_not(requireNamespace("mockery", quietly = TRUE))
+    testthat::skip_if_not_installed("mockery")
 
     mock_mart_sp1 <- structure(.Data = "mock-mart", class = "Mart")
     mock_attribs <- df(
@@ -137,6 +137,8 @@ test_that(
       info = "dataset_sp1 can not be NULL"
     )
 
+    testthat::skip_if_not_installed("mockery")
+
     # A valid biomaRt object should be provided for species 1
     # And a homologue column for species 2 should be present in the
     #   biomaRt dataset for species 1
@@ -221,6 +223,8 @@ test_that(
         "Gene ID", "External Gene ID", "Mouse homologues", "Human homologues"
       )
     )
+
+    testthat::skip_if_not_installed("mockery")
 
     # Map ensembl gene ids from human to ensembl gene ids in mouse
     # - 1:1 mappings only
@@ -621,77 +625,159 @@ test_that(
 
 test_that(
   "map_to_homologues", {
-    #
-    #      # Map ensembl to ensembl: human to mouse, single one-to-one example
-    #      expect_equal(
-    #        object = map_to_homologues(
-    #          gene_ids = "ENSG00000134294",
-    #          sp1 = "hsapiens",
-    #          sp2 = "mmusculus",
-    #          idtype_sp1 = "ensembl_gene_id",
-    #          idtype_sp2 = "ensembl_gene_id"
-    #        ),
-    #        expected = data.frame(
-    #          id_sp1 = "ENSG00000134294",
-    #          id_sp2 = "ENSMUSG00000022462",
-    #          stringsAsFactors = FALSE
-    #        ),
-    #        info = paste(
-    #          "Ensembl-to-ensembl homologues; human to mouse singly",
-    #          "mapping example"
-    #        )
-    #      )
-    #      # Then reversed:
-    #      expect_equal(
-    #        object = map_to_homologues(
-    #          gene_ids = "ENSMUSG00000022462",
-    #          sp1 = "mmusculus",
-    #          sp2 = "hsapiens",
-    #          idtype_sp1 = "ensembl_gene_id",
-    #          idtype_sp2 = "ensembl_gene_id"
-    #        ),
-    #        expected = data.frame(
-    #          id_sp1 = "ENSMUSG00000022462",
-    #          id_sp2 = "ENSG00000134294",
-    #          stringsAsFactors = FALSE
-    #        ),
-    #        info = paste(
-    #          "Ensembl-to-ensembl homologues; mouse to human singly",
-    #          "mapping example"
-    #        )
-    #      )
-    #      # Human ensembl gene with no mouse orthologue
-    #      # - note that default mapping is ensembl:ensembl and human:mouse
-    #      # - ENSG00000284192 was found by searching in biomart with filters =
-    #      # "with_mmusculus_homolog", values = FALSE and then keeping only
-    #      # those genes with an entrez gene id
-    #      expect_equal(
-    #        object = map_to_homologues("ENSG00000284192"),
-    #        expected = data.frame(
-    #          id_sp1 = "ENSG00000284192",
-    #          id_sp2 = as.character(NA),
-    #          stringsAsFactors = FALSE
-    #        ),
-    #        info = "Non-mapping human gene, ensembl to ensembl"
-    #      )
-    #      # Human ensembl gene with multiple mouse orthologues
-    #      expect_equal(
-    #        object = map_to_homologues("ENSG00000002726"),
-    #        expected = data.frame(
-    #          id_sp1 = "ENSG00000002726",
-    #          id_sp2 = c(
-    #            "ENSMUSG00000029811",
-    #            "ENSMUSG00000029813",
-    #            "ENSMUSG00000039215",
-    #            "ENSMUSG00000068536"
-    #          ),
-    #          stringsAsFactors = FALSE
-    #        ),
-    #        info = "One-to-many mapping human gene, ensembl-to-ensembl"
-    #      )
+    # Map ensembl to ensembl: human to mouse, single one-to-one example
 
-    #      # Would like a gene that maps many:many for use in testing
-    #      # one.to.one = TRUE
+    testthat::skip_if_not_installed("mockery")
+
+    # Mock biomaRt objects for use in unit-testing
+    mock_mart <- structure(.Data = list(), class = "Mart")
+
+    mock_attribs <- df(
+      name = c(
+        "ensembl_gene_id", "entrezgene", "mmusculus_homolog_ensembl_gene",
+        "hsapiens_homolog_ensembl_gene"
+      ),
+      descriptions = c(
+        "Gene ID", "External Gene ID", "Mouse homologues", "Human homologues"
+      )
+    )
+
+    # Ensembl to ensembl
+    gene_ids <- "ENSG00000134294"
+    bm_hom <- df(
+      ensembl_gene_id = gene_ids,
+      mmusculus_homolog_ensembl_gene = "ENSMUSG00000022462"
+    )
+    expect <- df(
+      id_sp1 = "ENSG00000134294",
+      id_sp2 = "ENSMUSG00000022462"
+    )
+
+    with_mock(
+      getBM = mockery::mock(bm_hom),
+      useMart = mockery::mock(mock_mart, cycle = TRUE),
+      listAttributes = mockery::mock(mock_attribs, cycle = TRUE),
+      expect_equal(
+        object = map_to_homologues(
+          gene_ids = gene_ids,
+          dataset_sp1 = mock_mart,
+          dataset_sp2 = mock_mart,
+          sp1 = "hsapiens",
+          sp2 = "mmusculus",
+          idtype_sp1 = "ensembl_gene_id",
+          idtype_sp2 = "ensembl_gene_id"
+        ),
+        expected = expect,
+        info = paste(
+          "Ensembl-to-ensembl homologues; human to mouse singly mapping",
+          "example"
+        )
+      ),
+      .env = "biomaRt"
+    )
+
+    # Then reversed:
+    gene_ids <- "ENSMUSG00000022462"
+    bm_hom <- df(
+      ensembl_gene_id = gene_ids,
+      hsapiens_homolog_ensembl_gene = "ENSG00000134294"
+    )
+    expect <- df(
+      id_sp1 = "ENSMUSG00000022462",
+      id_sp2 = "ENSG00000134294"
+    )
+
+    with_mock(
+      getBM = mockery::mock(bm_hom),
+      useMart = mockery::mock(mock_mart, cycle = TRUE),
+      listAttributes = mockery::mock(mock_attribs, cycle = TRUE),
+      expect_equal(
+        object = map_to_homologues(
+          gene_ids = gene_ids,
+          dataset_sp1 = mock_mart,
+          dataset_sp2 = mock_mart,
+          sp1 = "mmusculus",
+          sp2 = "hsapiens",
+          idtype_sp1 = "ensembl_gene_id",
+          idtype_sp2 = "ensembl_gene_id"
+        ),
+        expected = expect,
+        info = paste(
+          "Ensembl-to-ensembl homologues; mouse to human singly mapping",
+          "example"
+        )
+      ),
+      .env = "biomaRt"
+    )
+
+    # Human ensembl gene with no mouse orthologue
+    # - note that default mapping is ensembl:ensembl and human:mouse
+    # - ENSG00000284192 was found by searching in biomart with filters =
+    # "with_mmusculus_homolog", values = FALSE and then keeping only
+    # those genes with an entrez gene id
+    gene_ids <- "ENSG00000284192"
+    bm_hom <- df(
+      ensembl_gene_id = gene_ids,
+      mmusculus_homolog_ensembl_gene = NA_character_
+    )
+    expect <- df(
+      id_sp1 = gene_ids,
+      id_sp2 = NA_character_
+    )
+
+    with_mock(
+      getBM = mockery::mock(bm_hom),
+      useMart = mockery::mock(mock_mart, cycle = TRUE),
+      listAttributes = mockery::mock(mock_attribs, cycle = TRUE),
+      expect_equal(
+        object = map_to_homologues(
+          gene_ids = gene_ids,
+          dataset_sp1 = mock_mart,
+          dataset_sp2 = mock_mart,
+          sp1 = "hsapiens",
+          sp2 = "mmusculus",
+          idtype_sp1 = "ensembl_gene_id",
+          idtype_sp2 = "ensembl_gene_id"
+        ),
+        expected = expect,
+        info = "Non-mapping human gene, ensembl to ensembl"
+      ),
+      .env = "biomaRt"
+    )
+
+    # Human ensembl gene with multiple mouse orthologues
+    gene_ids <- "ENSG00000002726"
+    bm_hom <- df(
+      ensembl_gene_id = gene_ids,
+      mmusculus_homolog_ensembl_gene = c(
+        "ENSMUSG00000029811", "ENSMUSG00000029813", "ENSMUSG00000039215",
+        "ENSMUSG00000068536"
+      )
+    )
+    expect <- df(
+      id_sp1 = bm_hom$ensembl_gene_id,
+      id_sp2 = bm_hom$mmusculus_homolog_ensembl_gene
+    )
+
+    with_mock(
+      getBM = mockery::mock(bm_hom),
+      useMart = mockery::mock(mock_mart, cycle = TRUE),
+      listAttributes = mockery::mock(mock_attribs, cycle = TRUE),
+      expect_equal(
+        object = map_to_homologues(
+          gene_ids = gene_ids,
+          dataset_sp1 = mock_mart,
+          dataset_sp2 = mock_mart,
+          sp1 = "hsapiens",
+          sp2 = "mmusculus",
+          idtype_sp1 = "ensembl_gene_id",
+          idtype_sp2 = "ensembl_gene_id"
+        ),
+        expected = expect,
+        info = "One-to-many mapping human gene, ensembl-to-ensembl"
+      ),
+      .env = "biomaRt"
+    )
   }
 )
 
@@ -699,6 +785,8 @@ test_that(
 
 test_that(
   "map_to_homologues: one_to_one", {
+    # TODO: mock these tests
+
     #      # One-to-one ensembl to ensembl: human to mouse, single one-to-one
     #      # example
     #      expect_equal(
@@ -783,7 +871,7 @@ test_that("keep_complete_biomart_results", {
 })
 
 test_that("select_and_filter", {
-  testthat::skip_if_not(requireNamespace("mockery", quietly = TRUE))
+  testthat::skip_if_not_installed("mockery")
 
   my_bm <- df(
     ensembl_gene_id = "ENSG01234567890",

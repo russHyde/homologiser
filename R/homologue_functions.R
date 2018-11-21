@@ -1,3 +1,129 @@
+#' map_to_homologues
+#'
+#' Takes gene ids from one species and maps them to gene ids in another
+#' species. Can convert entrez ids and ensembl ids.
+#'
+#' Note: This function is used in project `dtg_rnaseq`. But the version there
+#' uses dot-separated argument names. The argnames have been converted to
+#' underscore-separated. If this function-script is copied back into the
+#' `dtg_rnaseq` project you will have to double-check the function-calls.
+#'
+#' @param        gene_ids      A vector of gene identifiers for species `sp1`
+#'   and of type `idtype_sp1`.
+#' @param        dataset_sp1   The name of the `biomaRt` dataset that houses
+#'   the data for species `sp1`.
+#' @param        dataset_sp2   The name of the `biomaRt` dataset that houses
+#'   the data for species `sp2`.
+#' @param        sp1           The name of species 1 (using ensembl prefixes
+#'   like `hsapiens` / `mmusculus`).
+#' @param        sp2           The name of species 2 (using ensembl prefixes
+#'   like `hsapiens` / `mmusculus`).
+#' @param        idtype_sp1    The type of identifier used for species `sp1`;
+#'   this should match one of the field / column names in the biomaRt dataset
+#'   for species `sp1`.
+#' @param        idtype_sp2    The type of identifier used for species `sp2`;
+#'   this should match one of the field / column names in the biomaRt dataset
+#'   for species `sp2`.
+#' @param        host          The URL for the website that hosts the biomaRt
+#'   dataset.
+#' @param        mart_name     The name of the biomaRt database that is to be
+#'   used.
+#' @param        one_to_one    Boolean. Should the function only return
+#'   one-to-one homology mappings?
+#'
+#' @return       A data.frame with columns ID.sp1 and ID.sp2.
+#'
+#' @export
+#'
+
+map_to_homologues <- function(gene_ids = character(0),
+                              dataset_sp1 = NULL,
+                              dataset_sp2 = NULL,
+                              sp1 = "hsapiens",
+                              sp2 = "mmusculus",
+                              idtype_sp1 = "ensembl_gene_id",
+                              idtype_sp2 = "ensembl_gene_id",
+                              host = "www.ensembl.org",
+                              mart_name = "ENSEMBL_MART_ENSEMBL",
+                              one_to_one = FALSE) {
+  # Validity checks
+  # If the user hasn't provided a biomaRt 'Mart' object for either species 1 or
+  #   species 2, use the "<species>_gene_ensembl" mart from ensembl as default
+  #
+  # Then check that the provided / constructed biomart datasets are valid
+  #
+  if (is.null(dataset_sp1) && !is.null(sp1)) {
+    dataset_sp1 <- use_default_mart(sp1)
+  }
+  if (is.null(dataset_sp2) && !is.null(sp2)) {
+    dataset_sp2 <- use_default_mart(sp2)
+  }
+  stopifnot(is_valid_mart(dataset_sp1, idtype_sp1))
+  stopifnot(is_valid_mart(dataset_sp2, idtype_sp2))
+
+  stopifnot(idtype_sp1 %in% c("ensembl_gene_id", "entrezgene"))
+  stopifnot(idtype_sp2 %in% c("ensembl_gene_id", "entrezgene"))
+
+  # Check the validity of the input gene_ids and return an empty result if
+  #   no gene_ids were provided
+  #
+  if (is.null(gene_ids) || length(gene_ids) == 0) {
+    null_results <- data.frame(
+      ID.sp1 = character(0),
+      ID.sp2 = character(0),
+      stringsAsFactors = FALSE
+    )
+    return(null_results)
+  }
+  stopifnot(is.character(gene_ids))
+
+  # Check that the one_to_one argument is TRUE/FALSE
+  stopifnot(is.logical(one_to_one) && length(one_to_one) == 1)
+
+  # Map from ids in species 1 to ids in species 2
+  forward_map <- map_to_homologues_oneway(
+    gene_ids = gene_ids,
+    dataset_sp1 = dataset_sp1,
+    dataset_sp2 = dataset_sp2,
+    sp1 = sp1,
+    sp2 = sp2,
+    idtype_sp1 = idtype_sp1,
+    idtype_sp2 = idtype_sp2
+  )
+
+  # If the user wants only homologues that are one:one from one species to the
+  # other, we have to compare the mappings from sp1->sp2 and the mappings from
+  # sp2->sp1, keeping only the genes in sp1 that map to a single gene in sp2
+  # and the genes in sp2 that map to a single gene in sp1
+  if (one_to_one) {
+    # Make mapping from second species back to first and
+    # Filter the forward map based on 1:many maps in both forward and reverse
+    # map
+    reverse_map <- map_to_homologues_oneway(
+      gene_ids = forward_map %>%
+        drop_incomplete_cases() %>%
+        magrittr::extract2("id_sp2") %>%
+        unique() %>%
+        sort(),
+      dataset_sp1 = dataset_sp2,
+      dataset_sp2 = dataset_sp1,
+      sp1 = sp2,
+      sp2 = sp1,
+      idtype_sp1 = idtype_sp2,
+      idtype_sp2 = idtype_sp1
+    )
+    return(
+      keep_only_one_to_one_homologues(forward_map, reverse_map)
+    )
+  } else {
+    return(
+      forward_map
+    )
+  }
+}
+
+###############################################################################
+
 #' map_to_homologues_oneway
 #'
 #' Takes gene ids from one species and maps them to gene ids in another
