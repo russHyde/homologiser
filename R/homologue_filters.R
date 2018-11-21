@@ -10,10 +10,10 @@
 #' Starting with `forward_map`, if a non-1:1 mapping is found, no filtering
 #'   takes place, and ID1 is unaffected but ID2 is set to NA.
 #'
-#' @param        forward_map   A `data.frame` containing colnames `ID.sp1` and
-#'   `ID.sp2`.
-#' @param        reverse_map   A `data.frame` containing colnames `ID.sp1` and
-#'   `ID.sp2`.
+#' @param        forward_map   A `data.frame` containing colnames `id_sp1` and
+#'   `id_sp2`.
+#' @param        reverse_map   A `data.frame` containing colnames `id_sp1` and
+#'   `id_sp2`.
 #'
 #' @importFrom   dplyr         filter_   select_
 #'
@@ -21,12 +21,12 @@ keep_only_one_to_one_homologues <- function(forward_map,
                                             reverse_map) {
   check_validity <- function(dframe, dframe_name) {
     if (!is.data.frame(dframe) ||
-      !all(c("ID.sp1", "ID.sp2") %in% colnames(dframe))
+      !all(c("id_sp1", "id_sp2") %in% colnames(dframe))
     ) {
       stop(
         paste(
           dframe_name,
-          "should be a dataframe and have columns `ID.sp1` and `ID.sp2`"
+          "should be a dataframe and have columns `id_sp1` and `id_sp2`"
         )
       )
     }
@@ -38,19 +38,19 @@ keep_only_one_to_one_homologues <- function(forward_map,
   check_validity(reverse_map, "reverse_map")
 
   one_to_many_a <- which_mappings_are_one_to_many(
-    forward_map, "ID.sp1", "ID.sp2"
+    forward_map, "id_sp1", "id_sp2"
   )
   one_to_many_b <- which_mappings_are_one_to_many(
-    reverse_map, "ID.sp1", "ID.sp2"
+    reverse_map, "id_sp1", "id_sp2"
   )
 
   forward_map %>%
-    dplyr::filter_(~!(ID.sp1 %in% one_to_many_a)) %>%
-    dplyr::filter_(~!(ID.sp2 %in% one_to_many_b)) %>%
+    dplyr::filter_(~!(id_sp1 %in% one_to_many_a)) %>%
+    dplyr::filter_(~!(id_sp2 %in% one_to_many_b)) %>%
     merge(
-      forward_map[, "ID.sp1", drop = FALSE],
+      forward_map[, "id_sp1", drop = FALSE],
       all.y = TRUE,
-      by = "ID.sp1"
+      by = "id_sp1"
     ) %>%
     unique()
 }
