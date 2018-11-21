@@ -52,20 +52,20 @@ map_to_homologues_oneway <- function(gene_ids = character(0),
 
   # Map species 2 ensembl-ids to species 2 output idtype
   sp2_ensembl_to_output <- if (idtype_sp2 == "ensembl_gene_id") {
-    ens_sp2 <- unique(sp1_to_sp2_ensembl[, "ENSEMBLGENE.sp2"])
+    ens_sp2 <- unique(sp1_to_sp2_ensembl[, "ensembl_gene_sp2"])
     data.frame(
       ensembl_gene_id = ens_sp2,
-      ID.sp2 = ens_sp2,
+      id_sp2 = ens_sp2,
       stringsAsFactors = FALSE
     )
   } else {
     select_and_filter(
       filters = "ensembl_gene_id",
-      values = sp1_to_sp2_ensembl[, "ENSEMBLGENE.sp2"],
+      values = sp1_to_sp2_ensembl[, "ensembl_gene_sp2"],
       attributes = c("ensembl_gene_id", idtype_sp2),
       mart = dataset_sp2
     ) %>%
-      setNames(c("ensembl_gene_id", "ID.sp2"))
+      setNames(c("ensembl_gene_id", "id_sp2"))
   }
 
   # Merge species 1 gene_ids with species 2 gene_ids of type idtype_sp2
@@ -73,28 +73,28 @@ map_to_homologues_oneway <- function(gene_ids = character(0),
   sp1_to_sp2 <- merge(
     x = sp1_to_sp2_ensembl,
     y = sp2_ensembl_to_output,
-    by.x = "ENSEMBLGENE.sp2",
+    by.x = "ensembl_gene_sp2",
     by.y = "ensembl_gene_id",
     all.x = TRUE
   ) %>%
-    dplyr::select_(.dots = c("ID.sp1", "ID.sp2")) %>%
-    setNames(c("ID.sp1", "ID.sp2")) %>%
+    dplyr::select_(.dots = c("id_sp1", "id_sp2")) %>%
+    setNames(c("id_sp1", "id_sp2")) %>%
     unique()
 
   # Remove any rows where the sp2.entrez is NA AND the sp1.entrez has at least
   # one non-NA value in sp2.entrez
   has_valid <- with(
     sp1_to_sp2,
-    ID.sp1[which(!is.na(ID.sp2))]
+    id_sp1[which(!is.na(id_sp2))]
   )
 
   sp1_to_sp2 %>%
-    dplyr::filter_(~ID.sp1 %in% has_valid &
-      !is.na(ID.sp2)) %>%
+    dplyr::filter_(~id_sp1 %in% has_valid &
+      !is.na(id_sp2)) %>%
     dplyr::bind_rows(
-      dplyr::filter_(sp1_to_sp2, ~!(ID.sp1 %in% has_valid))
+      dplyr::filter_(sp1_to_sp2, ~!(id_sp1 %in% has_valid))
     ) %>%
-    dplyr::arrange_("ID.sp1", "ID.sp2") %>%
+    dplyr::arrange_("id_sp1", "id_sp2") %>%
     as.data.frame(stringsAsFactors = FALSE)
 }
 
@@ -108,8 +108,7 @@ map_to_homologues_oneway <- function(gene_ids = character(0),
 #'
 #' @inheritParams   map_to_homologues_oneway
 #'
-#' @return       A data.frame with columns ID.sp1 and
-#'   ENSEMBLGENE.sp2.
+#' @return       A data.frame with columns id_sp1 and ensembl_gene_sp2.
 #'
 #' @importFrom   magrittr      %>%
 #' @importFrom   dplyr         arrange_
@@ -123,8 +122,8 @@ map_to_ensembl_homologues_with_biomart <- function(gene_ids = character(0),
                                                    idtype_sp1 =
                                                      "ensembl_gene_id") {
   results_empty <- data.frame(
-    ID.sp1 = character(0),
-    ENSEMBLGENE.sp2 = character(0),
+    id_sp1 = character(0),
+    ensembl_gene_sp2 = character(0),
     stringsAsFactors = FALSE
   )
 
@@ -201,19 +200,19 @@ map_to_ensembl_homologues_with_biomart <- function(gene_ids = character(0),
   )
 
   # Output should be sorted by input id and then by output id, and should have
-  #   column names ID.sp1 and ENSEMBLGENE.sp2
+  #   column names id_sp1 and ensembl_gene_sp2
   data.frame(
-    ID.sp1 = c(
+    id_sp1 = c(
       id_to_ensembl_sp1_sp2[, idtype_sp1],
       missing_inputs
     ),
-    ENSEMBLGENE.sp2 = c(
+    ensembl_gene_sp2 = c(
       id_to_ensembl_sp1_sp2[, homologue_field],
       rep(NA, length(missing_inputs))
     ),
     stringsAsFactors = FALSE
   ) %>%
-    dplyr::arrange_(.dots = c("ID.sp1", "ENSEMBLGENE.sp2"))
+    dplyr::arrange_(.dots = c("id_sp1", "ensembl_gene_sp2"))
 }
 
 ###############################################################################

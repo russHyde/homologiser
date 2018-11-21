@@ -31,8 +31,8 @@ test_that(
           gene_ids, mock_mart_sp1, mock_mart_sp2
         ),
         expected = df(
-          ID.sp1 = gene_ids,
-          ID.sp2 = bm_hom$mmusculus_homolog_ensembl_gene
+          id_sp1 = gene_ids,
+          id_sp2 = bm_hom$mmusculus_homolog_ensembl_gene
         ),
         info = "ensembl-gene to ensembl-gene oneway homology map"
       ),
@@ -60,8 +60,8 @@ test_that(
           idtype_sp2 = "entrezgene"
         ),
         expected = df(
-          ID.sp1 = gene_ids,
-          ID.sp2 = c("entrezA", "entrezB")
+          id_sp1 = gene_ids,
+          id_sp2 = c("entrezA", "entrezB")
         ),
         info = "ensembl to entrez-gene oneway homology map"
       ),
@@ -177,8 +177,8 @@ test_that(
     # The default return value is a dataframe with two cols and no
     # entries
     expect_empty <- df(
-      ID.sp1 = character(0),
-      ENSEMBLGENE.sp2 = character(0)
+      id_sp1 = character(0),
+      ensembl_gene_sp2 = character(0)
     )
 
     # An empty gene list should result from passing in an empty gene
@@ -235,8 +235,8 @@ test_that(
     )
 
     expect <- df(
-      ID.sp1 = c("ENSG00000117020", "ENSG00000134294"),
-      ENSEMBLGENE.sp2 = c("ENSMUSG00000019699", "ENSMUSG00000022462")
+      id_sp1 = c("ENSG00000117020", "ENSG00000134294"),
+      ensembl_gene_sp2 = c("ENSMUSG00000019699", "ENSMUSG00000022462")
     )
 
     with_mock(
@@ -265,8 +265,8 @@ test_that(
       hsapiens_homolog_ensembl_gene = c("ENSG00000117020", "ENSG00000134294")
     )
     expect <- df(
-      ID.sp1 = bm_hom$ensembl_gene_id,
-      ENSEMBLGENE.sp2 = bm_hom$hsapiens_homolog_ensembl_gene
+      id_sp1 = bm_hom$ensembl_gene_id,
+      ensembl_gene_sp2 = bm_hom$hsapiens_homolog_ensembl_gene
     )
 
     with_mock(
@@ -306,8 +306,8 @@ test_that(
       )
     )
     expect <- df(
-      ID.sp1 = c("10000", "54407", "7316"),
-      ENSEMBLGENE.sp2 = c(
+      id_sp1 = c("10000", "54407", "7316"),
+      ensembl_gene_sp2 = c(
         "ENSMUSG00000019699", "ENSMUSG00000022462", "ENSMUSG00000008348"
       )
     )
@@ -344,8 +344,8 @@ test_that(
       )
     )
     expect <- df(
-      ID.sp1 = c("8813", "8813"),
-      ENSEMBLGENE.sp2 = c("ENSMUSG00000078919", "ENSMUSG00000093752")
+      id_sp1 = c("8813", "8813"),
+      ensembl_gene_sp2 = c("ENSMUSG00000078919", "ENSMUSG00000093752")
     )
 
     with_mock(
@@ -383,8 +383,8 @@ test_that(
     )
 
     expect <- df(
-      ID.sp1 = gene_ids,
-      ENSEMBLGENE.sp2 = bm_hom$mmusculus_homolog_ensembl_gene
+      id_sp1 = gene_ids,
+      ensembl_gene_sp2 = bm_hom$mmusculus_homolog_ensembl_gene
     )
 
     with_mock(
@@ -425,8 +425,8 @@ test_that(
     )
 
     expect <- df(
-      ID.sp1 = c("10000", "3", "54407"),
-      ENSEMBLGENE.sp2 = c(
+      id_sp1 = c("10000", "3", "54407"),
+      ensembl_gene_sp2 = c(
         "ENSMUSG00000019699", NA, "ENSMUSG00000022462"
       )
     )
@@ -459,12 +459,12 @@ test_that(
 
     # TODO: rename all test-variables in snake_case
     # expect the results to look like
-    # data.frame(ENTREZID.sp1 = character.vec, ENTREZID.sp2 = character.vec)
+    # data.frame(entrez_id_sp1 = character.vec, entrez_id_sp2 = character.vec)
     # Empty gene list should return an empty map:
     gene_ids_empty <- character(0)
     # expect.empty <- data.frame(
-    #  ENTREZID.sp1 = character(0),
-    #  ENTREZID.sp2 = character(0),
+    #  entrez_id_sp1 = character(0),
+    #  entrez_id_sp2 = character(0),
     #  stringsAsFactors = FALSE
     # )
     #      result.empty <- map_to_homologues_with_biomart(gene_ids_empty)
@@ -477,8 +477,8 @@ test_that(
     #      # Null gene list should return an empty map
     #      gene_ids_null <- NULL
     #      expect.null <- data.frame(
-    #        ENTREZID.sp1 = character(0),
-    #        ENTREZID.sp2 = character(0),
+    #        entrez_id_sp1 = character(0),
+    #        entrez_id_sp2 = character(0),
     #        stringsAsFactors = FALSE
     #      )
     #      result.null <- map_to_homologues_with_biomart(gene_ids_null)
@@ -507,8 +507,8 @@ test_that(
     #      # Entrez gene "3" maps to "NA" ensembl prot:
     #      gene_ids_without.mouse <- c("3")
     #      expect_without_mouse <- data.frame(
-    #        ENTREZID.sp1 = gene_ids_without.mouse,
-    #        ENTREZID.sp2 = as.character(NA),
+    #        entrez_id_sp1 = gene_ids_without.mouse,
+    #        entrez_id_sp2 = as.character(NA),
     #        stringsAsFactors = FALSE
     #      )
     #      expect_equal(
@@ -527,8 +527,8 @@ test_that(
     #      expect_equal(
     #        object = map_to_homologues_with_biomart("1"),
     #        expected = data.frame(
-    #          ENTREZID.sp1 = "1",
-    #          ENTREZID.sp2 = "117586",
+    #          entrez_id_sp1 = "1",
+    #          entrez_id_sp2 = "117586",
     #          stringsAsFactors = FALSE
     #        ),
     #        info = paste(
@@ -542,8 +542,8 @@ test_that(
     #      #     though Mm orthologues exist on ensembl.org
     #      gene_ids_with.mouse <- c("1", "151", "2", "33", "41")
     #      expect_with_mouse <- data.frame(
-    #        ENTREZID.sp1 = gene_ids_with.mouse,
-    #        ENTREZID.sp2 = c("117586", "11552", "232345", "11363", "11419"),
+    #        entrez_id_sp1 = gene_ids_with.mouse,
+    #        entrez_id_sp2 = c("117586", "11552", "232345", "11363", "11419"),
     #        stringsAsFactors = FALSE
     #      )
     #      expect_equal(
@@ -562,8 +562,8 @@ test_that(
     #      # - See below
     #      # gene_ids_with_multi_mouse <- "8363"
     #      # expect_with_multi.mouse <- data.frame(
-    #      #  ENTREZID.sp1 = "8363",
-    #      #  ENTREZID.sp2 = c("102641229", "319155", "326620"),
+    #      #  entrez_id_sp1 = "8363",
+    #      #  entrez_id_sp2 = c("102641229", "319155", "326620"),
     #      #  stringsAsFactors = FALSE
     #      #  )
 
@@ -571,8 +571,8 @@ test_that(
     #      # single human ensembl gene id
     #      gene_ids_with_multi_mouse <- "26"
     #      expect_with_multi.mouse <- data.frame(
-    #        ENTREZID.sp1 = rep("26", 4),
-    #        ENTREZID.sp2 = c("243376", "243377", "69761", "76507"),
+    #        entrez_id_sp1 = rep("26", 4),
+    #        entrez_id_sp2 = c("243376", "243377", "69761", "76507"),
     #        stringsAsFactors = FALSE
     #      )
     #      expect_equal(
@@ -593,8 +593,8 @@ test_that(
     #      #   since 7314 maps to a single gene and 7316 maps to a single gene
     #      #   now gene_ids_many_to_many <- c("7314", "7316")
     #      # expect.many_to_many <- data.frame(
-    #      #   ENTREZID.sp1 = rep(gene_ids_many_to_many, each = 2),
-    #      #   ENTREZID.sp2 = rep(c("22187", "22190"), 2),
+    #      #   entrez_id_sp1 = rep(gene_ids_many_to_many, each = 2),
+    #      #   entrez_id_sp2 = rep(c("22187", "22190"), 2),
     #      #   stringsAsFactors = FALSE
     #      #   )
     #      # Hence, I rewrote the method using the human alkaline phosphatases
@@ -603,8 +603,8 @@ test_that(
     #      # on 14/12/15)
     #      gene_ids_many_to_many <- c("250", "251")
     #      expect.many_to_many <- data.frame(
-    #        ENTREZID.sp1 = rep(c("250", "251"), each = 3),
-    #        ENTREZID.sp2 = rep(c("11648", "11650", "76768"), times = 2),
+    #        entrez_id_sp1 = rep(c("250", "251"), each = 3),
+    #        entrez_id_sp2 = rep(c("11648", "11650", "76768"), times = 2),
     #        stringsAsFactors = FALSE
     #      )
     #      expect_equal(
@@ -632,8 +632,8 @@ test_that(
     #          idtype_sp2 = "ensembl_gene_id"
     #        ),
     #        expected = data.frame(
-    #          ID.sp1 = "ENSG00000134294",
-    #          ID.sp2 = "ENSMUSG00000022462",
+    #          id_sp1 = "ENSG00000134294",
+    #          id_sp2 = "ENSMUSG00000022462",
     #          stringsAsFactors = FALSE
     #        ),
     #        info = paste(
@@ -651,8 +651,8 @@ test_that(
     #          idtype_sp2 = "ensembl_gene_id"
     #        ),
     #        expected = data.frame(
-    #          ID.sp1 = "ENSMUSG00000022462",
-    #          ID.sp2 = "ENSG00000134294",
+    #          id_sp1 = "ENSMUSG00000022462",
+    #          id_sp2 = "ENSG00000134294",
     #          stringsAsFactors = FALSE
     #        ),
     #        info = paste(
@@ -668,8 +668,8 @@ test_that(
     #      expect_equal(
     #        object = map_to_homologues("ENSG00000284192"),
     #        expected = data.frame(
-    #          ID.sp1 = "ENSG00000284192",
-    #          ID.sp2 = as.character(NA),
+    #          id_sp1 = "ENSG00000284192",
+    #          id_sp2 = as.character(NA),
     #          stringsAsFactors = FALSE
     #        ),
     #        info = "Non-mapping human gene, ensembl to ensembl"
@@ -678,8 +678,8 @@ test_that(
     #      expect_equal(
     #        object = map_to_homologues("ENSG00000002726"),
     #        expected = data.frame(
-    #          ID.sp1 = "ENSG00000002726",
-    #          ID.sp2 = c(
+    #          id_sp1 = "ENSG00000002726",
+    #          id_sp2 = c(
     #            "ENSMUSG00000029811",
     #            "ENSMUSG00000029813",
     #            "ENSMUSG00000039215",
@@ -707,8 +707,8 @@ test_that(
     #          one_to_one = TRUE
     #        ),
     #        expected = data.frame(
-    #          ID.sp1 = "ENSG00000134294",
-    #          ID.sp2 = "ENSMUSG00000022462",
+    #          id_sp1 = "ENSG00000134294",
+    #          id_sp2 = "ENSMUSG00000022462",
     #          stringsAsFactors = FALSE
     #        ),
     #        info = paste(
@@ -722,8 +722,8 @@ test_that(
     #          one_to_one = TRUE
     #        ),
     #        expected = DF(
-    #          ID.sp1 = "ENSG00000002726",
-    #          ID.sp2 = as.character(NA)
+    #          id_sp1 = "ENSG00000002726",
+    #          id_sp2 = as.character(NA)
     #        ),
     #        info = "one_to_one ensembl-to-ensembl homologues; 1:many example"
     #      )
@@ -737,8 +737,8 @@ test_that(
     #          one_to_one = TRUE
     #        ),
     #        expected = DF(
-    #          ID.sp1 = "ENSMUSG00000029811",
-    #          ID.sp2 = as.character(NA)
+    #          id_sp1 = "ENSMUSG00000029811",
+    #          id_sp2 = as.character(NA)
     #        ),
     #        info = "one_to_one ensembl-to-ensembl homologues; many:1 example"
     #      )
