@@ -108,10 +108,6 @@ map_to_homologues_oneway <- function(gene_ids = character(0),
 #'
 #' @inheritParams   map_to_homologues_oneway
 #'
-#' @param        host          The URL for the host-site for the biomart
-#'   database.
-#' @param        mart_name     The name of the biomart database to be used.
-#'
 #' @return       A data.frame with columns ID.sp1 and
 #'   ENSEMBLGENE.sp2.
 #'
@@ -123,13 +119,9 @@ map_to_homologues_oneway <- function(gene_ids = character(0),
 
 map_to_ensembl_homologues_with_biomart <- function(gene_ids = character(0),
                                                    dataset_sp1 = NULL,
-                                                   sp1 = "hsapiens",
                                                    sp2 = "mmusculus",
                                                    idtype_sp1 =
-                                                     "ensembl_gene_id",
-                                                   host = "www.ensembl.org",
-                                                   mart_name =
-                                                     "ENSEMBL_MART_ENSEMBL") {
+                                                     "ensembl_gene_id") {
   results_empty <- data.frame(
     ID.sp1 = character(0),
     ENSEMBLGENE.sp2 = character(0),
@@ -153,30 +145,20 @@ map_to_ensembl_homologues_with_biomart <- function(gene_ids = character(0),
 
   # Checks on dataset_sp1
   # - If it is defined, it must
-  #   a) be a mart; b) have a homologue field for sp2; and c) have a field for
+  #   a) be a Mart; b) have a homologue field for sp2; and c) have a field for
   #   the input idtype_sp1
-  # - If it isn't defined, use the default mart for species 1 (and check it)
 
-  # TODO: remove this:
-  # - since this function is not exported, we can ensure all callers
-  #   pass a valid Mart and so don't need default-mart behaviour
-  #
-  # - then move mart-validity checks into select_and_filter
+  # TODO:
+  # - move mart-validity checks into select_and_filter
 
-  dataset_sp1 <- if (is.null(dataset_sp1) && !is.null(sp1)) {
-    use_default_mart(sp1, host, mart_name)
-  } else {
-    dataset_sp1
+  if (is.null(dataset_sp1)) {
+    stop("Mart should be provided as `dataset_sp1`")
   }
 
-  if (!is.null(dataset_sp1)) {
-    stopifnot(
-      is_valid_mart(dataset_sp1, idtype_sp1) &&
-        is_valid_mart(dataset_sp1, homologue_field)
-    )
-  } else {
-    stop("User should provide a biomart object or name for species1")
-  }
+  stopifnot(
+    is_valid_mart(dataset_sp1, idtype_sp1) &&
+      is_valid_mart(dataset_sp1, homologue_field)
+  )
 
   # If the input ids are non-ensembl, they have to be mapped to ensembl-ids
   #   before use in homology searches

@@ -74,11 +74,24 @@ test_that(
 
 test_that(
   "map_to_ensembl_homologues_with_biomart: invalid inputs", {
+    # Mock biomaRt objects for use in unit-testing
+    mock_mart <- structure(.Data = list(), class = "Mart")
+
+    mock_attribs <- df(
+      name = c(
+        "ensembl_gene_id", "entrezgene", "mmusculus_homolog_ensembl_gene",
+        "hsapiens_homolog_ensembl_gene"
+      ),
+      descriptions = c(
+        "Gene ID", "External Gene ID", "Mouse homologues", "Human homologues"
+      )
+    )
 
     # An error should arise from passing in a NULL or non-vector gene list
     expect_error(
       object = map_to_ensembl_homologues_with_biomart(
-        gene_ids = NULL
+        gene_ids = NULL,
+        dataset_sp1 = mock_mart
       ),
       info = paste(
         "NULL gene_ids throw an error in",
@@ -88,7 +101,8 @@ test_that(
 
     expect_error(
       object = map_to_ensembl_homologues_with_biomart(
-        gene_ids = data.frame(gene_ids = c("1000", "1234", "11111"))
+        gene_ids = data.frame(gene_ids = c("1000", "1234", "11111")),
+        dataset_sp1 = mock_mart
       ),
       info = paste(
         "Non-vector gene_ids throw an error in",
@@ -101,6 +115,7 @@ test_that(
     expect_error(
       object = map_to_ensembl_homologues_with_biomart(
         gene_ids = c("ABC", "123"),
+        dataset_sp1 = mock_mart,
         idtype_sp1 = id_type_error
       ),
       info = "invalid id_type in the input"
@@ -116,24 +131,13 @@ test_that(
 
     expect_error(
       object = map_to_ensembl_homologues_with_biomart(
-        gene_ids = c("123", "234"), dataset_sp1 = NULL, sp1 = NULL
+        gene_ids = c("123", "234"),
+        dataset_sp1 = NULL
       ),
-      info = "A way to define a valid Mart for species 1 should be provided"
+      info = "dataset_sp1 can not be NULL"
     )
 
-    # Mock biomaRt objects for use in unit-testing
-    mock_mart <- structure(.Data = list(), class = "Mart")
-
-    mock_attribs <- df(
-      name = c(
-        "ensembl_gene_id", "entrezgene", "mmusculus_homolog_ensembl_gene",
-        "hsapiens_homolog_ensembl_gene"
-      ),
-      descriptions = c(
-        "Gene ID", "External Gene ID", "Mouse homologues", "Human homologues"
-      )
-    )
-    # A valid biomaRt object should be constructible for species 1
+    # A valid biomaRt object should be provided for species 1
     # And a homologue column for species 2 should be present in the
     #   biomaRt dataset for species 1
 
@@ -143,29 +147,12 @@ test_that(
         object = map_to_ensembl_homologues_with_biomart(
           gene_ids = c("ABC", "123"),
           idtype_sp1 = "entrezgene",
-          sp1 = "mmusculus",
           sp2 = "not_present_in_the_attributes"
         ),
         info = "Non-species sp2 in map_to_ensembl_homologues_with_biomart"
       ),
       .env = "biomaRt"
     )
-
-    # TODO: all biomart calls should be mocked out but I can't work out how
-    # to mock out the use_default_mart calls
-    # - There should be no calls to use_default_mart within
-    # map_to_ensembl_homologues_with_biomart; this is a non-exported function
-    # and so we can rewrite it to always receive a Mart
-
-    # # input mart/host/species1 should imply a valid biomart dataset
-    # expect_error(
-    #   object = map_to_ensembl_homologues_with_biomart(
-    #     gene_ids = c("ABC", "123"),
-    #     idtype_sp1 = "entrezgene",
-    #     sp1 = "I'm not a species"
-    #   ),
-    #   info = "Non-species sp1 in map_to_ensembl_homologues_with_biomart"
-    # )
 
     with_mock(
       url.exists = mockery::mock(FALSE),
@@ -179,15 +166,6 @@ test_that(
       ),
       .env = "RCurl"
     )
-
-    # expect_error(
-    #   object = map_to_ensembl_homologues_with_biomart(
-    #     gene_ids = c("ABC", "123"),
-    #     idtype_sp1 = "ensembl_gene_id",
-    #     mart_name = "NOT_A_MARTNAME"
-    #   ),
-    #   info = "mart_name is invalid"
-    # )
   }
 )
 
@@ -268,8 +246,8 @@ test_that(
       expect_equal(
         object = map_to_ensembl_homologues_with_biomart(
           gene_ids = gene_ids,
+          dataset_sp1 = mock_mart,
           idtype_sp1 = "ensembl_gene_id",
-          sp1 = "hsapiens",
           sp2 = "mmusculus"
         ),
         expected = expect,
@@ -298,8 +276,8 @@ test_that(
       expect_equal(
         object = map_to_ensembl_homologues_with_biomart(
           gene_ids = gene_ids,
+          dataset_sp1 = mock_mart,
           idtype_sp1 = "ensembl_gene_id",
-          sp1 = "mmusculus",
           sp2 = "hsapiens"
         ),
         expected = expect,
@@ -334,17 +312,6 @@ test_that(
       )
     )
 
-    expect_equal(
-      object = map_to_ensembl_homologues_with_biomart(
-        gene_ids = gene_ids,
-        idtype_sp1 = "entrezgene",
-        sp1 = "hsapiens",
-        sp2 = "mmusculus"
-      ),
-      expected = expect,
-      info = "Human entrez ids to mouse ensembl ids (1:1 mapping)"
-    )
-
     with_mock(
       getBM = mockery::mock(bm_id, bm_hom),
       useMart = mockery::mock(mock_mart, cycle = TRUE),
@@ -352,8 +319,8 @@ test_that(
       expect_equal(
         object = map_to_ensembl_homologues_with_biomart(
           gene_ids = gene_ids,
+          dataset_sp1 = mock_mart,
           idtype_sp1 = "entrezgene",
-          sp1 = "hsapiens",
           sp2 = "mmusculus"
         ),
         expected = expect,
@@ -388,8 +355,8 @@ test_that(
       expect_equal(
         object = map_to_ensembl_homologues_with_biomart(
           gene_ids = gene_ids,
+          dataset_sp1 = mock_mart,
           idtype_sp1 = "entrezgene",
-          sp1 = "hsapiens",
           sp2 = "mmusculus"
         ),
         expected = expect,
@@ -427,8 +394,8 @@ test_that(
       expect_equal(
         object = map_to_ensembl_homologues_with_biomart(
           gene_ids = gene_ids,
+          dataset_sp1 = mock_mart,
           idtype_sp1 = "entrezgene",
-          sp1 = "hsapiens",
           sp2 = "mmusculus"
         ),
         expected = expect,
@@ -471,8 +438,8 @@ test_that(
       expect_equal(
         object = map_to_ensembl_homologues_with_biomart(
           gene_ids = gene_ids,
+          dataset_sp1 = mock_mart,
           idtype_sp1 = "entrezgene",
-          sp1 = "hsapiens",
           sp2 = "mmusculus"
         ),
         expected = expect,

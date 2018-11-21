@@ -9,51 +9,59 @@ context("Tests for db-connection / validity in homologiser")
 test_that(
   "use_default_mart", {
 
-    #      # Test that a valid Mart object is returned
-    #      expect_true(
-    #        is(use_default_mart(), "Mart"),
-    #        info = "test that a valid mart is returned"
-    #      )
+    # replace with skip_if_offline() when cran/testthat is updated to 2.0.1
+    skip_on_travis()
 
-    #      # Test that a valid Mart object is returned - using named args
-    #      expect_true(
-    #        is(
-    #          use_default_mart(
-    #            sp = "hsapiens",
-    #            host = "www.ensembl.org",
-    #            mart_name = "ENSEMBL_MART_ENSEMBL"
-    #          ),
-    #          "Mart"
-    #        ),
-    #        info = "test that a valid mart is returned"
-    #      )
+    # I wasn't able to meaningfully mock-out these tests
+    # - the whole purpose of this function is to get a Mart object from the
+    # biomart server
 
-    #      # species name, hostname and martname should all be valid in
-    #      # use_default_mart
-    #      expect_error(
-    #        use_default_mart(
-    #          sp = "NOT_A_SPECIES",
-    #          host = "www.ensembl.org",
-    #          mart_name = "ENSEMBL_MART_ENSEMBL"
-    #        ),
-    #        info = "non-standard species name"
-    #      )
-    #      expect_error(
-    #        use_default_mart(
-    #          sp = "hsapiens",
-    #          host = "NOT_A_URL",
-    #          mart_name = "ENSEMBL_MART_ENSEMBL"
-    #        ),
-    #        info = "non-standard host URL"
-    #      )
-    #      expect_error(
-    #        use_default_mart(
-    #          sp = "hsapiens",
-    #          host = "www.ensembl.org",
-    #          mart_name = "NOT_A_MARTNAME"
-    #        ),
-    #        info = "non-standard mart_name"
-    #      )
+    # Test that a valid Mart object is returned
+    expect_is(
+      use_default_mart(),
+      "Mart",
+      info = "test that a valid Mart object is returned"
+    )
+
+    # Test that a valid Mart object is returned - using named args
+    expect_is(
+      use_default_mart(
+        sp = "hsapiens",
+        host = "www.ensembl.org",
+        mart_name = "ENSEMBL_MART_ENSEMBL"
+      ),
+      "Mart",
+      info = "test that a valid mart is returned"
+    )
+
+    # species name, hostname and martname should all be valid in
+    # use_default_mart
+    expect_error(
+      use_default_mart(
+        sp = "NOT_A_SPECIES",
+        host = "www.ensembl.org",
+        mart_name = "ENSEMBL_MART_ENSEMBL"
+      ),
+      info = "non-standard species name"
+    )
+
+    expect_error(
+      use_default_mart(
+        sp = "hsapiens",
+        host = "NOT_A_URL",
+        mart_name = "ENSEMBL_MART_ENSEMBL"
+      ),
+      info = "non-standard host URL"
+    )
+
+    expect_error(
+      use_default_mart(
+        sp = "hsapiens",
+        host = "www.ensembl.org",
+        mart_name = "NOT_A_MARTNAME"
+      ),
+      info = "non-standard mart_name"
+    )
   }
 )
 
