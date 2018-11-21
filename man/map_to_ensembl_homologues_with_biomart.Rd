@@ -5,9 +5,7 @@
 \title{map_to_ensembl_homologues_with_biomart}
 \usage{
 map_to_ensembl_homologues_with_biomart(gene_ids = character(0),
-  dataset_sp1 = NULL, sp1 = "hsapiens", sp2 = "mmusculus",
-  idtype_sp1 = "ensembl_gene_id", host = "www.ensembl.org",
-  mart_name = "ENSEMBL_MART_ENSEMBL")
+  dataset_sp1 = NULL, sp2 = "mmusculus", idtype_sp1 = "ensembl_gene_id")
 }
 \arguments{
 \item{gene_ids}{A vector of gene identifiers for species `sp1`
@@ -16,20 +14,12 @@ and of type `idtype_sp1`.}
 \item{dataset_sp1}{The `biomaRt` dataset that houses the data for
 species `sp1`.}
 
-\item{sp1}{The name of species 1 (using ensembl prefixes
-like `hsapiens` / `mmusculus`).}
-
 \item{sp2}{The name of species 2 (using ensembl prefixes
 like `hsapiens` / `mmusculus`).}
 
 \item{idtype_sp1}{The type of identifier used for species `sp1`;
 this should match one of the field / column names in the biomaRt dataset
 for species `sp1`.}
-
-\item{host}{The URL for the host-site for the biomart
-database.}
-
-\item{mart_name}{The name of the biomart database to be used.}
 }
 \value{
 A data.frame with columns ID.sp1 and
