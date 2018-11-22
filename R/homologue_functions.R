@@ -31,7 +31,7 @@
 #' @param        one_to_one    Boolean. Should the function only return
 #'   one-to-one homology mappings?
 #'
-#' @return       A data.frame with columns ID.sp1 and ID.sp2.
+#' @return       A data.frame with columns id_sp1 and id_sp2.
 #'
 #' @export
 #'
@@ -69,8 +69,8 @@ map_to_homologues <- function(gene_ids = character(0),
   #
   if (is.null(gene_ids) || length(gene_ids) == 0) {
     null_results <- data.frame(
-      ID.sp1 = character(0),
-      ID.sp2 = character(0),
+      id_sp1 = character(0),
+      id_sp2 = character(0),
       stringsAsFactors = FALSE
     )
     return(null_results)
@@ -246,7 +246,7 @@ map_to_ensembl_homologues_with_biomart <- function(gene_ids = character(0),
                                                    dataset_sp1 = NULL,
                                                    sp2 = "mmusculus",
                                                    idtype_sp1 =
-                                                     "ensembl_gene_id") {
+                                                   "ensembl_gene_id") {
   results_empty <- data.frame(
     id_sp1 = character(0),
     ensembl_gene_sp2 = character(0),

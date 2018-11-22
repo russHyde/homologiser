@@ -642,6 +642,31 @@ test_that(
       )
     )
 
+    # No genes
+    expect <- df(
+      id_sp1 = character(0),
+      id_sp2 = character(0)
+    )
+
+    with_mock(
+      useMart = mockery::mock(mock_mart, cycle = TRUE),
+      listAttributes = mockery::mock(mock_attribs, cycle = TRUE),
+      expect_equal(
+        object = map_to_homologues(
+          gene_ids = character(0),
+          dataset_sp1 = mock_mart,
+          dataset_sp2 = mock_mart,
+          sp1 = "hsapiens",
+          sp2 = "mmusculus",
+          idtype_sp1 = "ensembl_gene_id",
+          idtype_sp2 = "ensembl_gene_id"
+        ),
+        expected = expect,
+        info = "No genes: should return a zero-row dataframe"
+      ),
+      .env = "biomaRt"
+    )
+
     # Ensembl to ensembl
     gene_ids <- "ENSG00000134294"
     bm_hom <- df(
@@ -785,51 +810,149 @@ test_that(
 
 test_that(
   "map_to_homologues: one_to_one", {
-    # TODO: mock these tests
+    testthat::skip_if_not_installed("mockery")
 
-    #      # One-to-one ensembl to ensembl: human to mouse, single one-to-one
-    #      # example
-    #      expect_equal(
-    #        object = map_to_homologues(
-    #          gene_ids = "ENSG00000134294",
-    #          one_to_one = TRUE
-    #        ),
-    #        expected = data.frame(
-    #          id_sp1 = "ENSG00000134294",
-    #          id_sp2 = "ENSMUSG00000022462",
-    #          stringsAsFactors = FALSE
-    #        ),
-    #        info = paste(
-    #          "one_to_one ensembl-to-ensembl homologues; singly mapping",
-    #          "example"
-    #        )
-    #      )
-    #      expect_equal(
-    #        object = map_to_homologues(
-    #          gene_ids = "ENSG00000002726",
-    #          one_to_one = TRUE
-    #        ),
-    #        expected = DF(
-    #          id_sp1 = "ENSG00000002726",
-    #          id_sp2 = as.character(NA)
-    #        ),
-    #        info = "one_to_one ensembl-to-ensembl homologues; 1:many example"
-    #      )
-    #      expect_equal(
-    #        # Many to one example; note *29811 is one of four mouse homologues
-    #        # of ENSG0000002726
-    #        object = map_to_homologues(
-    #          gene_ids = "ENSMUSG00000029811",
-    #          sp1 = "mmusculus",
-    #          sp2 = "hsapiens",
-    #          one_to_one = TRUE
-    #        ),
-    #        expected = DF(
-    #          id_sp1 = "ENSMUSG00000029811",
-    #          id_sp2 = as.character(NA)
-    #        ),
-    #        info = "one_to_one ensembl-to-ensembl homologues; many:1 example"
-    #      )
+    # Mock biomaRt objects for use in unit-testing
+    mock_mart <- structure(.Data = list(), class = "Mart")
+
+    mock_attribs <- df(
+      name = c(
+        "ensembl_gene_id", "entrezgene", "mmusculus_homolog_ensembl_gene",
+        "hsapiens_homolog_ensembl_gene"
+      ),
+      descriptions = c(
+        "Gene ID", "External Gene ID", "Mouse homologues", "Human homologues"
+      )
+    )
+
+    # One-to-one ensembl to ensembl: human to mouse, single one-to-one
+    # example
+    gene_ids <- "ENSG00000134294"
+    bm_hom_sp1 <- df(
+      ensembl_gene_id = gene_ids,
+      mmusculus_homolog_ensembl_gene = "ENSMUSG00000022462"
+    )
+    bm_hom_sp2 <- df(
+      ensembl_gene_id = bm_hom_sp1$mmusculus_homolog_ensembl_gene,
+      hsapiens_homolog_ensembl_gene = bm_hom_sp1$ensembl_gene_id
+    )
+    expect <- df(
+      id_sp1 = bm_hom_sp1$ensembl_gene_id,
+      id_sp2 = bm_hom_sp1$mmusculus_homolog_ensembl_gene
+    )
+
+    with_mock(
+      getBM = mockery::mock(bm_hom_sp1, bm_hom_sp2),
+      useMart = mockery::mock(mock_mart, cycle = TRUE),
+      listAttributes = mockery::mock(mock_attribs, cycle = TRUE),
+      expect_equal(
+        object = map_to_homologues(
+          gene_ids = gene_ids,
+          dataset_sp1 = mock_mart,
+          dataset_sp2 = mock_mart,
+          sp1 = "hsapiens",
+          sp2 = "mmusculus",
+          idtype_sp1 = "ensembl_gene_id",
+          idtype_sp2 = "ensembl_gene_id",
+          one_to_one = TRUE
+        ),
+        expected = expect,
+        info = paste(
+          "one_to_one ensembl-to-ensembl homologues; singly mapping example"
+        )
+      ),
+      .env = "biomaRt"
+    )
+
+    # 1:many
+    gene_ids <- "ENSG00000002726"
+
+    bm_hom_sp1 <- df(
+      ensembl_gene_id = gene_ids,
+      mmusculus_homolog_ensembl_gene = c(
+        "ENSMUSG00000029811", "ENSMUSG00000029813", "ENSMUSG00000039215",
+        "ENSMUSG00000068536"
+      )
+    )
+
+    bm_hom_sp2 <- df(
+      ensembl_gene_id = bm_hom_sp1$mmusculus_homolog_ensembl_gene,
+      hsapiens_homolog_ensembl_gene = bm_hom_sp1$ensembl_gene_id
+    )
+
+    expect <- df(
+      id_sp1 = bm_hom_sp1$ensembl_gene_id[1],
+      id_sp2 = NA_character_
+    )
+
+    with_mock(
+      getBM = mockery::mock(bm_hom_sp1, bm_hom_sp2),
+      useMart = mockery::mock(mock_mart, cycle = TRUE),
+      listAttributes = mockery::mock(mock_attribs, cycle = TRUE),
+      expect_equal(
+        object = map_to_homologues(
+          gene_ids = gene_ids,
+          dataset_sp1 = mock_mart,
+          dataset_sp2 = mock_mart,
+          sp1 = "hsapiens",
+          sp2 = "mmusculus",
+          idtype_sp1 = "ensembl_gene_id",
+          idtype_sp2 = "ensembl_gene_id",
+          one_to_one = TRUE
+        ),
+        expected = expect,
+        info = paste(
+          "one_to_one ensembl-to-ensembl homologues; 1:many example"
+        )
+      ),
+      .env = "biomaRt"
+    )
+
+    # Many to one example; note *29811 is one of four mouse homologues
+    # of ENSG0000002726
+
+    gene_ids <- "ENSMUSG00000029811"
+
+    bm_hom_sp1 <- df(
+      ensembl_gene_id = gene_ids,
+      hsapiens_homolog_ensembl_gene = "ENSG00000002726"
+    )
+
+    bm_hom_sp2 <- df(
+      ensembl_gene_id = bm_hom_sp1$hsapiens_homolog_ensembl_gene,
+      mmusculus_homolog_ensembl_gene = c(
+        "ENSMUSG00000029811", "ENSMUSG00000029813", "ENSMUSG00000039215",
+        "ENSMUSG00000068536"
+      )
+    )
+
+    expect <- df(
+      id_sp1 = bm_hom_sp1$ensembl_gene_id[1],
+      id_sp2 = NA_character_
+    )
+
+    with_mock(
+      getBM = mockery::mock(bm_hom_sp1, bm_hom_sp2),
+      useMart = mockery::mock(mock_mart, cycle = TRUE),
+      listAttributes = mockery::mock(mock_attribs, cycle = TRUE),
+      expect_equal(
+        object = map_to_homologues(
+          gene_ids = gene_ids,
+          dataset_sp1 = mock_mart,
+          dataset_sp2 = mock_mart,
+          sp1 = "mmusculus",
+          sp2 = "hsapiens",
+          idtype_sp1 = "ensembl_gene_id",
+          idtype_sp2 = "ensembl_gene_id",
+          one_to_one = TRUE
+        ),
+        expected = expect,
+        info = paste(
+          "one_to_one ensembl-to-ensembl homologues; 1:many example"
+        )
+      ),
+      .env = "biomaRt"
+    )
   }
 )
 
