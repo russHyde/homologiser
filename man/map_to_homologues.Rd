@@ -7,7 +7,6 @@
 map_to_homologues(gene_ids = character(0), dataset_sp1 = NULL,
   dataset_sp2 = NULL, sp1 = "hsapiens", sp2 = "mmusculus",
   idtype_sp1 = "ensembl_gene_id", idtype_sp2 = "ensembl_gene_id",
-  host = "www.ensembl.org", mart_name = "ENSEMBL_MART_ENSEMBL",
   one_to_one = FALSE)
 }
 \arguments{
@@ -33,12 +32,6 @@ for species `sp1`.}
 \item{idtype_sp2}{The type of identifier used for species `sp2`;
 this should match one of the field / column names in the biomaRt dataset
 for species `sp2`.}
-
-\item{host}{The URL for the website that hosts the biomaRt
-dataset.}
-
-\item{mart_name}{The name of the biomaRt database that is to be
-used.}
 
 \item{one_to_one}{Boolean. Should the function only return
 one-to-one homology mappings?}

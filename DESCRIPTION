@@ -18,7 +18,6 @@ Suggests: testthat,
     mockery
 Imports: dplyr,
     magrittr,
-    RCurl,
     biomaRt,
     methods
 Collate:

@@ -24,12 +24,6 @@
 #' @param        idtype_sp2    The type of identifier used for species `sp2`;
 #'   this should match one of the field / column names in the biomaRt dataset
 #'   for species `sp2`.
-#'
-#' @param        host          The URL for the website that hosts the biomaRt
-#'   dataset.
-#' @param        mart_name     The name of the biomaRt database that is to be
-#'   used.
-#'
 #' @param        one_to_one    Boolean. Should the function only return
 #'   one-to-one homology mappings?
 #'
@@ -45,24 +39,7 @@ map_to_homologues <- function(gene_ids = character(0),
                               sp2 = "mmusculus",
                               idtype_sp1 = "ensembl_gene_id",
                               idtype_sp2 = "ensembl_gene_id",
-                              host = "www.ensembl.org",
-                              mart_name = "ENSEMBL_MART_ENSEMBL",
                               one_to_one = FALSE) {
-  # Validity checks
-  # If the user hasn't provided a biomaRt 'Mart' object for either species 1 or
-  #   species 2, use the "<species>_gene_ensembl" mart from ensembl as default
-  #
-  # Then check that the provided / constructed biomart datasets are valid
-  #
-  if (is.null(dataset_sp1) && !is.null(sp1)) {
-    dataset_sp1 <- use_default_mart(sp1)
-  }
-  if (is.null(dataset_sp2) && !is.null(sp2)) {
-    dataset_sp2 <- use_default_mart(sp2)
-  }
-  stopifnot(is_valid_mart(dataset_sp1, idtype_sp1))
-  stopifnot(is_valid_mart(dataset_sp2, idtype_sp2))
-
   stopifnot(idtype_sp1 %in% c("ensembl_gene_id", "entrezgene"))
   stopifnot(idtype_sp2 %in% c("ensembl_gene_id", "entrezgene"))
 
@@ -233,7 +210,7 @@ map_to_ensembl_homologues_with_biomart <- function(gene_ids = character(0),
                                                    dataset_sp1 = NULL,
                                                    sp2 = "mmusculus",
                                                    idtype_sp1 =
-                                                   "ensembl_gene_id") {
+                                                     "ensembl_gene_id") {
   results_empty <- data.frame(
     id_sp1 = character(0),
     ensembl_gene_sp2 = character(0),
