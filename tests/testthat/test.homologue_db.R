@@ -4,6 +4,36 @@ context("Tests for db-connection / validity in homologiser")
 
 ###############################################################################
 
+test_that("get_ensembl_homologue_field", {
+  expect_equal(
+    get_ensembl_homologue_field("hsapiens"),
+    "hsapiens_homolog_ensembl_gene",
+    info = "correct formatting of homology field for a given species"
+  )
+
+  expect_error(
+    get_ensembl_homologue_field(),
+    info = "homologue-field input should be defined"
+  )
+
+  expect_error(
+    get_ensembl_homologue_field(NULL),
+    info = "homologue-field input should be non-null"
+  )
+
+  expect_error(
+    get_ensembl_homologue_field(123),
+    info = "homologue-field is only defined for strings"
+  )
+
+  expect_error(
+    get_ensembl_homologue_field("Homo sapiens"),
+    info = "no spaces allowed in the homologue-field"
+  )
+})
+
+###############################################################################
+
 # TODO: mock out all relevant tests
 
 test_that(

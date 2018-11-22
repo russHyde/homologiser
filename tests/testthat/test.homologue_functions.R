@@ -8,18 +8,9 @@ test_that(
   "map_to_homologues_oneway", {
     testthat::skip_if_not_installed("mockery")
 
-    mock_mart_sp1 <- structure(.Data = "mock-mart", class = "Mart")
-    mock_attribs <- df(
-      name = c(
-        "ensembl_gene_id", "mmusculus_homolog_ensembl_gene", "entrezgene"
-      ),
-      description = c("this gene", "that gene", "another encoding")
-    )
-    mock_mart_sp2 <- structure(.Data = "mock-mart", class = "Mart")
-
     gene_ids <- c("1", "2")
     bm_hom <- df(
-      ensembl_gene_id = c("1", "2"),
+      ensembl_gene_id = gene_ids,
       mmusculus_homolog_ensembl_gene = c("A", "B")
     )
 
@@ -28,7 +19,7 @@ test_that(
       listAttributes = mockery::mock(mock_attribs, cycle = TRUE),
       expect_equal(
         object = map_to_homologues_oneway(
-          gene_ids, mock_mart_sp1, mock_mart_sp2
+          gene_ids, mock_mart, mock_mart
         ),
         expected = df(
           id_sp1 = gene_ids,
@@ -39,15 +30,16 @@ test_that(
       .env = "biomaRt"
     )
 
+    # Ensembl to Entrez one-way homology map
     gene_ids <- c("1", "2")
 
     bm_hom <- df(
-      ensembl_gene_id = c("1", "2"),
+      ensembl_gene_id = gene_ids,
       mmusculus_homolog_ensembl_gene = c("A", "B")
     )
 
     bm_id_sp2 <- df(
-      ensembl_gene_id = c("A", "B"),
+      ensembl_gene_id = bm_hom$mmusculus_homolog_ensembl_gene,
       entrezgene = c("entrezA", "entrezB")
     )
 
@@ -56,7 +48,7 @@ test_that(
       listAttributes = mockery::mock(mock_attribs, cycle = TRUE),
       expect_equal(
         object = map_to_homologues_oneway(
-          gene_ids, mock_mart_sp1, mock_mart_sp2,
+          gene_ids, mock_mart, mock_mart,
           idtype_sp2 = "entrezgene"
         ),
         expected = df(
@@ -74,18 +66,6 @@ test_that(
 
 test_that(
   "map_to_ensembl_homologues_with_biomart: invalid inputs", {
-    # Mock biomaRt objects for use in unit-testing
-    mock_mart <- structure(.Data = list(), class = "Mart")
-
-    mock_attribs <- df(
-      name = c(
-        "ensembl_gene_id", "entrezgene", "mmusculus_homolog_ensembl_gene",
-        "hsapiens_homolog_ensembl_gene"
-      ),
-      descriptions = c(
-        "Gene ID", "External Gene ID", "Mouse homologues", "Human homologues"
-      )
-    )
 
     # An error should arise from passing in a NULL or non-vector gene list
     expect_error(
@@ -149,24 +129,12 @@ test_that(
         object = map_to_ensembl_homologues_with_biomart(
           gene_ids = c("ABC", "123"),
           idtype_sp1 = "entrezgene",
-          sp2 = "not_present_in_the_attributes"
+          sp2 = "not_present_in_the_attributes",
+          dataset_sp1 = mock_mart
         ),
         info = "Non-species sp2 in map_to_ensembl_homologues_with_biomart"
       ),
       .env = "biomaRt"
-    )
-
-    with_mock(
-      url.exists = mockery::mock(FALSE),
-      expect_error(
-        object = map_to_ensembl_homologues_with_biomart(
-          gene_ids = c("ABC", "123"),
-          idtype_sp1 = "ensembl_gene_id",
-          host = "NOT_A_URL"
-        ),
-        info = "host-URL is invalid"
-      ),
-      .env = "RCurl"
     )
   }
 )
@@ -209,19 +177,6 @@ test_that(
       ),
       expected = expect_empty,
       info = "Empty ensemblgene list should return an empty map"
-    )
-
-    # Mock biomaRt objects for use in unit-testing
-    mock_mart <- structure(.Data = list(), class = "Mart")
-
-    mock_attribs <- df(
-      name = c(
-        "ensembl_gene_id", "entrezgene", "mmusculus_homolog_ensembl_gene",
-        "hsapiens_homolog_ensembl_gene"
-      ),
-      descriptions = c(
-        "Gene ID", "External Gene ID", "Mouse homologues", "Human homologues"
-      )
     )
 
     testthat::skip_if_not_installed("mockery")
@@ -459,188 +414,10 @@ test_that(
 ###############################################################################
 
 test_that(
-  "map_to_homologues_with_biomart", {
-
-    # TODO: rename all test-variables in snake_case
-    # expect the results to look like
-    # data.frame(entrez_id_sp1 = character.vec, entrez_id_sp2 = character.vec)
-    # Empty gene list should return an empty map:
-    gene_ids_empty <- character(0)
-    # expect.empty <- data.frame(
-    #  entrez_id_sp1 = character(0),
-    #  entrez_id_sp2 = character(0),
-    #  stringsAsFactors = FALSE
-    # )
-    #      result.empty <- map_to_homologues_with_biomart(gene_ids_empty)
-    #      expect_equal(
-    #        object = expect.empty,
-    #        expected = result.empty,
-    #        info = "Empty gene list should return an empty map"
-    #      )
-
-    #      # Null gene list should return an empty map
-    #      gene_ids_null <- NULL
-    #      expect.null <- data.frame(
-    #        entrez_id_sp1 = character(0),
-    #        entrez_id_sp2 = character(0),
-    #        stringsAsFactors = FALSE
-    #      )
-    #      result.null <- map_to_homologues_with_biomart(gene_ids_null)
-    #      expect_equal(
-    #        object = expect.null,
-    #        expected = result.null,
-    #        info = "Null gene list should return an empty map"
-    #      )
-
-    #      # Gene.ids should be character,
-    #      #   so numeric or factor input should die
-    #      gene_ids_numeric <- 1000
-    #      gene_ids_factor <- as.factor("1000")
-    #      expect_error(
-    #        map_to_homologues_with_biomart(gene_ids_numeric),
-    #        info = "Gene ids should be a character vector: Numeric input"
-    #      )
-    #      expect_error(
-    #        map_to_homologues_with_biomart(gene_ids_factor),
-    #        info = "Gene ids should be a character vector: Factor input"
-    #      )
-
-    #      # A human gene that doesn"t have a corresponding ensembl-mouse id
-    #      #   cannot be mapped between species using ensembl/biomart
-    #      #   and should return NA
-    #      # Entrez gene "3" maps to "NA" ensembl prot:
-    #      gene_ids_without.mouse <- c("3")
-    #      expect_without_mouse <- data.frame(
-    #        entrez_id_sp1 = gene_ids_without.mouse,
-    #        entrez_id_sp2 = as.character(NA),
-    #        stringsAsFactors = FALSE
-    #      )
-    #      expect_equal(
-    #        object = map_to_homologues_with_biomart(gene_ids_without.mouse),
-    #        expected = expect_without_mouse,
-    #        info = "Human gene without ensembl-mouse id"
-    #      )
-
-    #      # A human gene that has a mouse orthologue
-    #      # Entrez:1
-    #      # maps to ENSG00000121410
-    #      # maps to mouse ENSMUSG00000022347 and ENSMUSG00000112930
-    #      # map to        Entrez:117586      and Entrez:NA
-    #      # If a gene maps to some genuine orthologue IDs and to some NAs, the
-    #      # NAs should not be present in the output
-    #      expect_equal(
-    #        object = map_to_homologues_with_biomart("1"),
-    #        expected = data.frame(
-    #          entrez_id_sp1 = "1",
-    #          entrez_id_sp2 = "117586",
-    #          stringsAsFactors = FALSE
-    #        ),
-    #        info = paste(
-    #          "Human gene that maps to both valid-ID and NA in mouse, the NA",
-    #          "should be dropped when a valid ID is available"
-    #          )
-    #      )
-
-    #      # Human genes that do have mouse orthologues:
-    #      # nb, "2" and "41" did not map to an orthologue using inparanoid
-    #      #     though Mm orthologues exist on ensembl.org
-    #      gene_ids_with.mouse <- c("1", "151", "2", "33", "41")
-    #      expect_with_mouse <- data.frame(
-    #        entrez_id_sp1 = gene_ids_with.mouse,
-    #        entrez_id_sp2 = c("117586", "11552", "232345", "11363", "11419"),
-    #        stringsAsFactors = FALSE
-    #      )
-    #      expect_equal(
-    #        object = map_to_homologues_with_biomart(gene_ids_with.mouse),
-    #        expected = expect_with_mouse,
-    #        info = "Human genes with mouse orthologues"
-    #      )
-
-    #      # Human gene that maps to multiple mouse orthologues
-    #      # note, additional orthologue, compared to inparanoid searches
-    #      # note, 102641229 is not suggested as an orthologue on
-    #      #   www.ensembl.org but does return under biomaRt queries (?
-    #      #   predicted assembly
-    #      # THIS TEST FAILS AS OF 14/12/2015
-    #      # - Wrote up a new test of this type of gene using "26" as input
-    #      # - See below
-    #      # gene_ids_with_multi_mouse <- "8363"
-    #      # expect_with_multi.mouse <- data.frame(
-    #      #  entrez_id_sp1 = "8363",
-    #      #  entrez_id_sp2 = c("102641229", "319155", "326620"),
-    #      #  stringsAsFactors = FALSE
-    #      #  )
-
-    #      # Human gene that maps to multiple mouse ensembl gene ids via a
-    #      # single human ensembl gene id
-    #      gene_ids_with_multi_mouse <- "26"
-    #      expect_with_multi.mouse <- data.frame(
-    #        entrez_id_sp1 = rep("26", 4),
-    #        entrez_id_sp2 = c("243376", "243377", "69761", "76507"),
-    #        stringsAsFactors = FALSE
-    #      )
-    #      expect_equal(
-    #        object = map_to_homologues_with_biomart(
-    #          gene_ids_with_multi_mouse
-    #        ),
-    #        expected = expect_with_multi.mouse,
-    #        info = paste(
-    #          "Human entrez id that maps to multiple mouse entrez ids",
-    #          "(via a single HS-ensembl and multiple MM-ensembl ids)"
-    #        )
-    #      )
-
-    #      # Human genes that map to the same mouse orthologues
-    #      # "7314"/UBB and "7316"/UBC map to both "22187"/Ubb and "22190"/Ubc
-    #      #
-    #      # The test that uses UBB/UBC no longer works as of 14/12/2015
-    #      #   since 7314 maps to a single gene and 7316 maps to a single gene
-    #      #   now gene_ids_many_to_many <- c("7314", "7316")
-    #      # expect.many_to_many <- data.frame(
-    #      #   entrez_id_sp1 = rep(gene_ids_many_to_many, each = 2),
-    #      #   entrez_id_sp2 = rep(c("22187", "22190"), 2),
-    #      #   stringsAsFactors = FALSE
-    #      #   )
-    #      # Hence, I rewrote the method using the human alkaline phosphatases
-    #      # ALPP and ALPPL2
-    #      # Each of these genes maps to 3 different mouse gene ids (in biomart
-    #      # on 14/12/15)
-    #      gene_ids_many_to_many <- c("250", "251")
-    #      expect.many_to_many <- data.frame(
-    #        entrez_id_sp1 = rep(c("250", "251"), each = 3),
-    #        entrez_id_sp2 = rep(c("11648", "11650", "76768"), times = 2),
-    #        stringsAsFactors = FALSE
-    #      )
-    #      expect_equal(
-    #        object = map_to_homologues_with_biomart(
-    #          gene_ids_many_to_many
-    #        ),
-    #        expected = expect.many_to_many,
-    #        info = "Genes that map to the same multiple genes"
-    #      )
-  }
-)
-
-###############################################################################
-
-test_that(
   "map_to_homologues", {
     # Map ensembl to ensembl: human to mouse, single one-to-one example
 
     testthat::skip_if_not_installed("mockery")
-
-    # Mock biomaRt objects for use in unit-testing
-    mock_mart <- structure(.Data = list(), class = "Mart")
-
-    mock_attribs <- df(
-      name = c(
-        "ensembl_gene_id", "entrezgene", "mmusculus_homolog_ensembl_gene",
-        "hsapiens_homolog_ensembl_gene"
-      ),
-      descriptions = c(
-        "Gene ID", "External Gene ID", "Mouse homologues", "Human homologues"
-      )
-    )
 
     # No genes
     expect <- df(
@@ -741,10 +518,12 @@ test_that(
     # "with_mmusculus_homolog", values = FALSE and then keeping only
     # those genes with an entrez gene id
     gene_ids <- "ENSG00000284192"
+
     bm_hom <- df(
       ensembl_gene_id = gene_ids,
       mmusculus_homolog_ensembl_gene = NA_character_
     )
+
     expect <- df(
       id_sp1 = gene_ids,
       id_sp2 = NA_character_
@@ -772,6 +551,7 @@ test_that(
 
     # Human ensembl gene with multiple mouse orthologues
     gene_ids <- "ENSG00000002726"
+
     bm_hom <- df(
       ensembl_gene_id = gene_ids,
       mmusculus_homolog_ensembl_gene = c(
@@ -779,6 +559,7 @@ test_that(
         "ENSMUSG00000068536"
       )
     )
+
     expect <- df(
       id_sp1 = bm_hom$ensembl_gene_id,
       id_sp2 = bm_hom$mmusculus_homolog_ensembl_gene
@@ -811,19 +592,6 @@ test_that(
 test_that(
   "map_to_homologues: one_to_one", {
     testthat::skip_if_not_installed("mockery")
-
-    # Mock biomaRt objects for use in unit-testing
-    mock_mart <- structure(.Data = list(), class = "Mart")
-
-    mock_attribs <- df(
-      name = c(
-        "ensembl_gene_id", "entrezgene", "mmusculus_homolog_ensembl_gene",
-        "hsapiens_homolog_ensembl_gene"
-      ),
-      descriptions = c(
-        "Gene ID", "External Gene ID", "Mouse homologues", "Human homologues"
-      )
-    )
 
     # One-to-one ensembl to ensembl: human to mouse, single one-to-one
     # example
@@ -958,40 +726,12 @@ test_that(
 
 ###############################################################################
 
-test_that("get_ensembl_homologue_field", {
-  expect_equal(
-    get_ensembl_homologue_field("hsapiens"),
-    "hsapiens_homolog_ensembl_gene",
-    info = "correct formatting of homology field for a given species"
-  )
-
-  expect_error(
-    get_ensembl_homologue_field(),
-    info = "homologue-field input should be defined"
-  )
-
-  expect_error(
-    get_ensembl_homologue_field(NULL),
-    info = "homologue-field input should be non-null"
-  )
-
-  expect_error(
-    get_ensembl_homologue_field(123),
-    info = "homologue-field is only defined for strings"
-  )
-
-  expect_error(
-    get_ensembl_homologue_field("Homo sapiens"),
-    info = "no spaces allowed in the homologue-field"
-  )
-})
-
-###############################################################################
-
 test_that("keep_complete_biomart_results", {
   # TODO: refactor select_and_filter - put the empty -> NA conversion and
   # filtering steps in keep_complete_biomart_results
 })
+
+###############################################################################
 
 test_that("select_and_filter", {
   testthat::skip_if_not_installed("mockery")
