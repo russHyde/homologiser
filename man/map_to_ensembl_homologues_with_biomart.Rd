@@ -22,8 +22,7 @@ this should match one of the field / column names in the biomaRt dataset
 for species `sp1`.}
 }
 \value{
-A data.frame with columns id_sp1 and
-  ensembl_gene_sp2.
+A data.frame with columns id_sp1 and ensembl_gene_sp2.
 }
 \description{
 A function to map from a set of `gene_ids` in one species (sp1) to the

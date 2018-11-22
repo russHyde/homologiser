@@ -8,8 +8,9 @@ use_default_mart(sp = "hsapiens", host = "www.ensembl.org",
   mart_name = "ENSEMBL_MART_ENSEMBL")
 }
 \arguments{
-\item{sp}{A species name (eg, "hsapiens", "mmusculus") as
-used in biomaRt.}
+\item{sp}{A species-name contraction, as used in
+ensembl / `biomaRt`, for example, mmusculus for mouse and hsapiens for
+human.}
 
 \item{host}{The name of the site that hosts the mart
 database.}

@@ -14,11 +14,11 @@ map_to_homologues(gene_ids = character(0), dataset_sp1 = NULL,
 \item{gene_ids}{A vector of gene identifiers for species `sp1`
 and of type `idtype_sp1`.}
 
-\item{dataset_sp1}{The name of the `biomaRt` dataset that houses
-the data for species `sp1`.}
+\item{dataset_sp1}{The `biomaRt` dataset that houses the data for
+species `sp1`.}
 
-\item{dataset_sp2}{The name of the `biomaRt` dataset that houses
-the data for species `sp2`.}
+\item{dataset_sp2}{The `biomaRt` dataset that houses the data for
+species `sp2`.}
 
 \item{sp1}{The name of species 1 (using ensembl prefixes
 like `hsapiens` / `mmusculus`).}
@@ -44,7 +44,7 @@ used.}
 one-to-one homology mappings?}
 }
 \value{
-A data.frame with columns ID.sp1 and ID.sp2.
+A `data.frame` with columns `id_sp1` and `id_sp2`.
 }
 \description{
 Takes gene ids from one species and maps them to gene ids in another

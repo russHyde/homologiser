@@ -10,10 +10,10 @@
 #'
 #' @param        gene_ids      A vector of gene identifiers for species `sp1`
 #'   and of type `idtype_sp1`.
-#' @param        dataset_sp1   The name of the `biomaRt` dataset that houses
-#'   the data for species `sp1`.
-#' @param        dataset_sp2   The name of the `biomaRt` dataset that houses
-#'   the data for species `sp2`.
+#' @param        dataset_sp1   The `biomaRt` dataset that houses the data for
+#'   species `sp1`.
+#' @param        dataset_sp2   The `biomaRt` dataset that houses the data for
+#'   species `sp2`.
 #' @param        sp1           The name of species 1 (using ensembl prefixes
 #'   like `hsapiens` / `mmusculus`).
 #' @param        sp2           The name of species 2 (using ensembl prefixes
@@ -24,14 +24,16 @@
 #' @param        idtype_sp2    The type of identifier used for species `sp2`;
 #'   this should match one of the field / column names in the biomaRt dataset
 #'   for species `sp2`.
+#'
 #' @param        host          The URL for the website that hosts the biomaRt
 #'   dataset.
 #' @param        mart_name     The name of the biomaRt database that is to be
 #'   used.
+#'
 #' @param        one_to_one    Boolean. Should the function only return
 #'   one-to-one homology mappings?
 #'
-#' @return       A data.frame with columns id_sp1 and id_sp2.
+#' @return       A `data.frame` with columns `id_sp1` and `id_sp2`.
 #'
 #' @export
 #'
@@ -141,22 +143,7 @@ map_to_homologues <- function(gene_ids = character(0),
 #'  - Since dataset_sp1 is the mart for species 1, we don't have to pass the
 #'  sp1, host or mart.name arguments into map_to_ensembl_homologues...
 #'
-#' @param        gene_ids      A vector of gene identifiers for species `sp1`
-#'   and of type `idtype_sp1`.
-#' @param        dataset_sp1   The `biomaRt` dataset that houses the data for
-#'   species `sp1`.
-#' @param        dataset_sp2   The `biomaRt` dataset that houses the data for
-#'   species `sp2`.
-#' @param        sp1           The name of species 1 (using ensembl prefixes
-#'   like `hsapiens` / `mmusculus`).
-#' @param        sp2           The name of species 2 (using ensembl prefixes
-#'   like `hsapiens` / `mmusculus`).
-#' @param        idtype_sp1    The type of identifier used for species `sp1`;
-#'   this should match one of the field / column names in the biomaRt dataset
-#'   for species `sp1`.
-#' @param        idtype_sp2    The type of identifier used for species `sp2`;
-#'   this should match one of the field / column names in the biomaRt dataset
-#'   for species `sp2`.
+#' @inheritParams   map_to_homologues
 #'
 #' @importFrom   dplyr         arrange_   bind_rows   filter_   select_
 #' @importFrom   magrittr      %>%
@@ -232,7 +219,7 @@ map_to_homologues_oneway <- function(gene_ids = character(0),
 #'   ensembl-gene id of their homologues in a separate species (sp2). The
 #'   mappings are performed using biomart databases.
 #'
-#' @inheritParams   map_to_homologues_oneway
+#' @inheritParams   map_to_homologues
 #'
 #' @return       A data.frame with columns id_sp1 and ensembl_gene_sp2.
 #'

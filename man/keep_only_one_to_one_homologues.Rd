@@ -7,11 +7,11 @@
 keep_only_one_to_one_homologues(forward_map, reverse_map)
 }
 \arguments{
-\item{forward_map}{A `data.frame` containing colnames `ID.sp1` and
-`ID.sp2`.}
+\item{forward_map}{A `data.frame` containing colnames `id_sp1` and
+`id_sp2`.}
 
-\item{reverse_map}{A `data.frame` containing colnames `ID.sp1` and
-`ID.sp2`.}
+\item{reverse_map}{A `data.frame` containing colnames `id_sp1` and
+`id_sp2`.}
 }
 \description{
 Takes two homologue maps, as returned by `map_to_homologues`, and drops any
