@@ -12,8 +12,7 @@
 #' @importFrom   stats         complete.cases
 #' @export
 
-drop_incomplete_cases <- function(
-                                  .x,
+drop_incomplete_cases <- function(.x,
                                   .cols = colnames(.x)) {
   if (missing(.x) || !is.data.frame(.x)) {
     stop("Dataframe .x should be defined in drop_incomplete_cases")

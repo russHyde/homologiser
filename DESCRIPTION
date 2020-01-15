@@ -13,13 +13,16 @@ LazyData: true
 RoxygenNote: 6.1.1
 URL: https://github.com/russHyde/homologiser
 BugReports: https://github.com/russHyde/homologiser/issues
-Suggests: testthat,
+Suggests:
+    testthat (>= 2.1.0),
     covr,
     mockery
-Imports: dplyr,
+Imports:
+    dplyr,
     magrittr,
     biomaRt,
-    methods
+    methods,
+    rlang
 Collate:
     'data_manipulation.R'
     'homologue_db.R'

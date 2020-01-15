@@ -5,7 +5,8 @@ context("Tests for homology-mapping functions")
 ###############################################################################
 
 test_that(
-  "map_to_homologues_oneway", {
+  "map_to_homologues_oneway",
+  {
     testthat::skip_if_not_installed("mockery")
 
     gene_ids <- c("1", "2")
@@ -65,7 +66,8 @@ test_that(
 ###############################################################################
 
 test_that(
-  "map_to_ensembl_homologues_with_biomart: invalid inputs", {
+  "map_to_ensembl_homologues_with_biomart: invalid inputs",
+  {
 
     # An error should arise from passing in a NULL or non-vector gene list
     expect_error(
@@ -142,7 +144,8 @@ test_that(
 ###############################################################################
 
 test_that(
-  "map_to_ensembl_homologues_with_biomart: valid input", {
+  "map_to_ensembl_homologues_with_biomart: valid input",
+  {
 
     # The default return value is a dataframe with two cols and no
     # entries
@@ -414,7 +417,8 @@ test_that(
 ###############################################################################
 
 test_that(
-  "map_to_homologues", {
+  "map_to_homologues",
+  {
     # Map ensembl to ensembl: human to mouse, single one-to-one example
 
     testthat::skip_if_not_installed("mockery")
@@ -590,7 +594,8 @@ test_that(
 ###############################################################################
 
 test_that(
-  "map_to_homologues: one_to_one", {
+  "map_to_homologues: one_to_one",
+  {
     testthat::skip_if_not_installed("mockery")
 
     # One-to-one ensembl to ensembl: human to mouse, single one-to-one

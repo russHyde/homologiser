@@ -122,8 +122,9 @@ map_to_homologues <- function(gene_ids = character(0),
 #'
 #' @inheritParams   map_to_homologues
 #'
-#' @importFrom   dplyr         arrange_   bind_rows   filter_   select_
+#' @importFrom   dplyr         arrange   bind_rows   filter
 #' @importFrom   magrittr      %>%
+#' @importFrom   rlang         .data
 #'
 
 map_to_homologues_oneway <- function(gene_ids = character(0),
@@ -160,16 +161,11 @@ map_to_homologues_oneway <- function(gene_ids = character(0),
 
   # Merge species 1 gene_ids with species 2 gene_ids of type idtype_sp2
   # - removing the intermediate ensembl-ids in species 2
-  sp1_to_sp2 <- merge(
-    x = sp1_to_sp2_ensembl,
-    y = sp2_ensembl_to_output,
-    by.x = "ensembl_gene_sp2",
-    by.y = "ensembl_gene_id",
-    all.x = TRUE
-  ) %>%
-    dplyr::select_(.dots = c("id_sp1", "id_sp2")) %>%
-    setNames(c("id_sp1", "id_sp2")) %>%
-    unique()
+  sp1_to_sp2_initial <- merge(
+    x = sp1_to_sp2_ensembl, y = sp2_ensembl_to_output,
+    by.x = "ensembl_gene_sp2", by.y = "ensembl_gene_id", all.x = TRUE
+  )
+  sp1_to_sp2 <- unique(sp1_to_sp2_initial[c("id_sp1", "id_sp2")])
 
   # Remove any rows where the sp2.entrez is NA AND the sp1.entrez has at least
   # one non-NA value in sp2.entrez
@@ -179,12 +175,14 @@ map_to_homologues_oneway <- function(gene_ids = character(0),
   )
 
   sp1_to_sp2 %>%
-    dplyr::filter_(~id_sp1 %in% has_valid &
-      !is.na(id_sp2)) %>%
+    dplyr::filter(.data[["id_sp1"]] %in% has_valid &
+      !is.na(.data[["id_sp2"]])) %>%
     dplyr::bind_rows(
-      dplyr::filter_(sp1_to_sp2, ~!(id_sp1 %in% has_valid))
+      dplyr::filter(sp1_to_sp2, !.data[["id_sp1"]] %in% has_valid)
     ) %>%
-    dplyr::arrange_("id_sp1", "id_sp2") %>%
+    dplyr::arrange(
+      .data[["id_sp1"]], .data[["id_sp2"]]
+    ) %>%
     as.data.frame(stringsAsFactors = FALSE)
 }
 
@@ -201,7 +199,8 @@ map_to_homologues_oneway <- function(gene_ids = character(0),
 #' @return       A data.frame with columns id_sp1 and ensembl_gene_sp2.
 #'
 #' @importFrom   magrittr      %>%
-#' @importFrom   dplyr         arrange_
+#' @importFrom   dplyr         arrange
+#' @importFrom   rlang         .data
 #'
 #' @include      homologue_db.R
 #'
@@ -302,7 +301,10 @@ map_to_ensembl_homologues_with_biomart <- function(gene_ids = character(0),
     ),
     stringsAsFactors = FALSE
   ) %>%
-    dplyr::arrange_(.dots = c("id_sp1", "ensembl_gene_sp2"))
+    dplyr::arrange(
+      .data[["id_sp1"]],
+      .data[["ensembl_gene_sp2"]]
+    )
 }
 
 ###############################################################################

@@ -15,7 +15,8 @@
 #' @param        reverse_map   A `data.frame` containing colnames `id_sp1` and
 #'   `id_sp2`.
 #'
-#' @importFrom   dplyr         filter_   select_
+#' @importFrom   dplyr         filter
+#' @importFrom   rlang         .data
 #'
 keep_only_one_to_one_homologues <- function(forward_map,
                                             reverse_map) {
@@ -45,8 +46,8 @@ keep_only_one_to_one_homologues <- function(forward_map,
   )
 
   forward_map %>%
-    dplyr::filter_(~!(id_sp1 %in% one_to_many_a)) %>%
-    dplyr::filter_(~!(id_sp2 %in% one_to_many_b)) %>%
+    dplyr::filter(!.data[["id_sp1"]] %in% one_to_many_a) %>%
+    dplyr::filter(!.data[["id_sp2"]] %in% one_to_many_b) %>%
     merge(
       forward_map[, "id_sp1", drop = FALSE],
       all.y = TRUE,
@@ -74,7 +75,6 @@ keep_only_one_to_one_homologues <- function(forward_map,
 #'   status?
 #'
 #' @importFrom   magrittr      %>%   extract2
-#' @importFrom   dplyr         select_
 #'
 #' @include      data_manipulation.R
 
@@ -106,8 +106,7 @@ which_mappings_are_one_to_many <- function(x,
     identity
   }
 
-  duplicated <- x %>%
-    dplyr::select_(.dots = c(seed_col, target_col)) %>%
+  duplicated <- x[c(seed_col, target_col)] %>%
     na_dropper() %>%
     unique() %>%
     magrittr::extract2(seed_col) %>%
