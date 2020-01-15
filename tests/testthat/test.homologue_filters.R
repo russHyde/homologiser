@@ -10,7 +10,7 @@ test_that("which_mappings_are_one_to_many: invalid input", {
     info = "No arguments to which_mappings_are_one_to_many"
   )
   expect_error(
-    object = which_mappings_are_one_to_many(df(
+    object = which_mappings_are_one_to_many(.df(
       x = character(0),
       y = character(0)
     )),
@@ -18,7 +18,7 @@ test_that("which_mappings_are_one_to_many: invalid input", {
   )
   expect_error(
     object = which_mappings_are_one_to_many(
-      df(
+      .df(
         x = character(0),
         y = character(0)
       ),
@@ -28,7 +28,7 @@ test_that("which_mappings_are_one_to_many: invalid input", {
   )
   expect_error(
     object = which_mappings_are_one_to_many(
-      df(
+      .df(
         x = character(0),
         y = character(0)
       ),
@@ -38,7 +38,7 @@ test_that("which_mappings_are_one_to_many: invalid input", {
   )
   expect_error(
     object = which_mappings_are_one_to_many(
-      df(
+      .df(
         x = character(0),
         y = character(0)
       ),
@@ -51,7 +51,7 @@ test_that("which_mappings_are_one_to_many: invalid input", {
   )
   expect_error(
     object = which_mappings_are_one_to_many(
-      df(
+      .df(
         x = character(0),
         y = character(0)
       ),
@@ -64,7 +64,7 @@ test_that("which_mappings_are_one_to_many: invalid input", {
   )
   expect_error(
     object = which_mappings_are_one_to_many(
-      df(
+      .df(
         x = character(0),
         y = character(0)
       ),
@@ -80,7 +80,7 @@ test_that("which_mappings_are_one_to_many: invalid input", {
 test_that("which_mappings_are_one_to_many: valid input", {
   expect_equal(
     object = which_mappings_are_one_to_many(
-      df(x = letters[1:3], y = 1:3),
+      .df(x = letters[1:3], y = 1:3),
       seed_col = "x",
       target_col = "y"
     ),
@@ -89,7 +89,7 @@ test_that("which_mappings_are_one_to_many: valid input", {
   )
   expect_equal(
     object = which_mappings_are_one_to_many(
-      df(x = c("b", "b"), y = 2:3),
+      .df(x = c("b", "b"), y = 2:3),
       seed_col = "x",
       target_col = "y"
     ),
@@ -98,7 +98,7 @@ test_that("which_mappings_are_one_to_many: valid input", {
   )
   expect_equal(
     object = which_mappings_are_one_to_many(
-      df(x = letters[1:3], y = rep(1, 3)),
+      .df(x = letters[1:3], y = rep(1, 3)),
       seed_col = "x",
       target_col = "y"
     ),
@@ -107,7 +107,7 @@ test_that("which_mappings_are_one_to_many: valid input", {
   )
   expect_equal(
     object = which_mappings_are_one_to_many(
-      df(x = c("b", "b"), y = c(2, 2)),
+      .df(x = c("b", "b"), y = c(2, 2)),
       seed_col = "x",
       target_col = "y"
     ),
@@ -116,7 +116,7 @@ test_that("which_mappings_are_one_to_many: valid input", {
   )
   expect_equal(
     object = which_mappings_are_one_to_many(
-      df(x = "b", y = c(2, NA)),
+      .df(x = "b", y = c(2, NA)),
       seed_col = "x",
       target_col = "y",
       na_rm = TRUE
@@ -126,7 +126,7 @@ test_that("which_mappings_are_one_to_many: valid input", {
   )
   expect_equal(
     object = which_mappings_are_one_to_many(
-      df(x = "b", y = c(2, NA)),
+      .df(x = "b", y = c(2, NA)),
       seed_col = "x",
       target_col = "y",
       na_rm = FALSE
@@ -137,7 +137,7 @@ test_that("which_mappings_are_one_to_many: valid input", {
   )
   expect_equal(
     object = which_mappings_are_one_to_many(
-      df(x = "b", y = c(2, 2), z = c(3, 4)),
+      .df(x = "b", y = c(2, 2), z = c(3, 4)),
       seed_col = "x",
       target_col = "y"
     ),
@@ -147,7 +147,7 @@ two rows"
   )
   expect_equal(
     object = which_mappings_are_one_to_many(
-      df(x = "b", y = c(2, 2), z = c(3, 4)),
+      .df(x = "b", y = c(2, 2), z = c(3, 4)),
       seed_col = "y",
       target_col = "z"
     ),
@@ -167,7 +167,7 @@ test_that("keep_only_one_to_one_homologues: invalid input", {
   expect_error(
     object = keep_only_one_to_one_homologues(
       forward_map = "Not a dataframe",
-      reverse_map = df(id_sp1 = 1:3, id_sp2 = 1:3)
+      reverse_map = .df(id_sp1 = 1:3, id_sp2 = 1:3)
     ),
     info = paste(
       "First arg to `keep_only_one_to_one_homologues` should be a `data.frame`"
@@ -176,7 +176,7 @@ test_that("keep_only_one_to_one_homologues: invalid input", {
 
   expect_error(
     object = keep_only_one_to_one_homologues(
-      forward_map = df(id_sp1 = 1:3, id_sp2 = 1:3),
+      forward_map = .df(id_sp1 = 1:3, id_sp2 = 1:3),
       reverse_map = "Not a dataframe"
     ),
     info = paste(
@@ -188,15 +188,15 @@ test_that("keep_only_one_to_one_homologues: invalid input", {
   # id_sp1 and id_sp2 should be the colnames of forward_map and reverse_map
   expect_error(
     object = keep_only_one_to_one_homologues(
-      forward_map = df(id_sp1 = 1:3, id_sp2 = 1:3),
-      reverse_map = df(Wrong = 1:2, COLNAMES = 3:4)
+      forward_map = .df(id_sp1 = 1:3, id_sp2 = 1:3),
+      reverse_map = .df(Wrong = 1:2, COLNAMES = 3:4)
     ),
     info = "Second arg should have id_sp1 and id_sp2 as colnames"
   )
   expect_error(
     object = keep_only_one_to_one_homologues(
-      forward_map = df(Wrong = 1:2, COLNAMES = 3:4),
-      reverse_map = df(id_sp1 = 1:3, id_sp2 = 1:3)
+      forward_map = .df(Wrong = 1:2, COLNAMES = 3:4),
+      reverse_map = .df(id_sp1 = 1:3, id_sp2 = 1:3)
     ),
     info = "First arg should have id_sp1 and id_sp2 as colnames"
   )
@@ -204,8 +204,8 @@ test_that("keep_only_one_to_one_homologues: invalid input", {
 
 test_that("keep_only_one_to_one_homologues: valid input", {
   # one:one mappings in both directions:
-  a <- df(id_sp1 = 1:3, id_sp2 = letters[1:3])
-  b <- df(id_sp1 = letters[1:3], id_sp2 = 1:3)
+  a <- .df(id_sp1 = 1:3, id_sp2 = letters[1:3])
+  b <- .df(id_sp1 = letters[1:3], id_sp2 = 1:3)
   expect_equal(
     object = keep_only_one_to_one_homologues(a, b),
     expected = a,
@@ -213,8 +213,8 @@ test_that("keep_only_one_to_one_homologues: valid input", {
   )
 
   # one:one mappings in both directions with named arguments:
-  a <- df(id_sp1 = 1:3, id_sp2 = letters[1:3])
-  b <- df(id_sp1 = letters[1:3], id_sp2 = 1:3)
+  a <- .df(id_sp1 = 1:3, id_sp2 = letters[1:3])
+  b <- .df(id_sp1 = letters[1:3], id_sp2 = 1:3)
   expect_equal(
     object = keep_only_one_to_one_homologues(
       forward_map = a,
@@ -225,20 +225,20 @@ test_that("keep_only_one_to_one_homologues: valid input", {
   )
 
   # one:many mapping
-  a <- df(id_sp1 = 1, id_sp2 = letters[1:3])
-  b <- df(id_sp1 = letters[1:3], id_sp2 = 1)
+  a <- .df(id_sp1 = 1, id_sp2 = letters[1:3])
+  b <- .df(id_sp1 = letters[1:3], id_sp2 = 1)
   expect_equal(
     object = keep_only_one_to_one_homologues(a, b),
-    expected = df(id_sp1 = 1, id_sp2 = as.character(NA)),
+    expected = .df(id_sp1 = 1, id_sp2 = as.character(NA)),
     info = "one-many mapping: mappings converted to a single NA"
   )
 
   # many:one mapping
-  a <- df(id_sp1 = 1:3, id_sp2 = "a")
-  b <- df(id_sp1 = "a", id_sp2 = 1:3)
+  a <- .df(id_sp1 = 1:3, id_sp2 = "a")
+  b <- .df(id_sp1 = "a", id_sp2 = 1:3)
   expect_equal(
     object = keep_only_one_to_one_homologues(a, b),
-    expected = df(id_sp1 = 1:3, id_sp2 = as.character(NA)),
+    expected = .df(id_sp1 = 1:3, id_sp2 = as.character(NA)),
     info = "many-one mapping: drop all rows"
   )
 })

@@ -9,7 +9,7 @@ test_that(
     testthat::skip_if_not_installed("mockery")
 
     gene_ids <- c("1", "2")
-    bm_hom <- df(
+    bm_hom <- .df(
       ensembl_gene_id = gene_ids,
       mmusculus_homolog_ensembl_gene = c("A", "B")
     )
@@ -21,7 +21,7 @@ test_that(
         object = map_to_homologues_oneway(
           gene_ids, mock_mart, mock_mart
         ),
-        expected = df(
+        expected = .df(
           id_sp1 = gene_ids,
           id_sp2 = bm_hom$mmusculus_homolog_ensembl_gene
         ),
@@ -33,12 +33,12 @@ test_that(
     # Ensembl to Entrez one-way homology map
     gene_ids <- c("1", "2")
 
-    bm_hom <- df(
+    bm_hom <- .df(
       ensembl_gene_id = gene_ids,
       mmusculus_homolog_ensembl_gene = c("A", "B")
     )
 
-    bm_id_sp2 <- df(
+    bm_id_sp2 <- .df(
       ensembl_gene_id = bm_hom$mmusculus_homolog_ensembl_gene,
       entrezgene = c("entrezA", "entrezB")
     )
@@ -51,7 +51,7 @@ test_that(
           gene_ids, mock_mart, mock_mart,
           idtype_sp2 = "entrezgene"
         ),
-        expected = df(
+        expected = .df(
           id_sp1 = gene_ids,
           id_sp2 = c("entrezA", "entrezB")
         ),
@@ -146,7 +146,7 @@ test_that(
 
     # The default return value is a dataframe with two cols and no
     # entries
-    expect_empty <- df(
+    expect_empty <- .df(
       id_sp1 = character(0),
       ensembl_gene_sp2 = character(0)
     )
@@ -186,14 +186,14 @@ test_that(
     # - results should be alpha-numerically sorted by ID in human
     gene_ids <- c("ENSG00000134294", "ENSG00000117020")
 
-    bm_hom <- df(
+    bm_hom <- .df(
       ensembl_gene_id = gene_ids,
       mmusculus_homolog_ensembl_gene = c(
         "ENSMUSG00000022462", "ENSMUSG00000019699"
       )
     )
 
-    expect <- df(
+    expect <- .df(
       id_sp1 = c("ENSG00000117020", "ENSG00000134294"),
       ensembl_gene_sp2 = c("ENSMUSG00000019699", "ENSMUSG00000022462")
     )
@@ -219,11 +219,11 @@ test_that(
     # - 1:1 mappings only
     # - results should be alpha-numerically sorted by ID in mouse
     gene_ids <- c("ENSMUSG00000019699", "ENSMUSG00000022462")
-    bm_hom <- df(
+    bm_hom <- .df(
       ensembl_gene_id = gene_ids,
       hsapiens_homolog_ensembl_gene = c("ENSG00000117020", "ENSG00000134294")
     )
-    expect <- df(
+    expect <- .df(
       id_sp1 = bm_hom$ensembl_gene_id,
       ensembl_gene_sp2 = bm_hom$hsapiens_homolog_ensembl_gene
     )
@@ -250,13 +250,13 @@ test_that(
     # 1:1 mappings from Entrez IDs in sp1 to Ensembl ID in sp2
     gene_ids <- c("7316", "10000", "54407")
 
-    bm_id <- df(
+    bm_id <- .df(
       ensembl_gene_id = c(
         "ENSG00000150991", "ENSG00000117020", "ENSG00000134294"
       ),
       entrezgene = c("7316", "10000", "54407")
     )
-    bm_hom <- df(
+    bm_hom <- .df(
       ensembl_gene_id = c(
         "ENSG00000150991", "ENSG00000117020", "ENSG00000134294"
       ),
@@ -264,7 +264,7 @@ test_that(
         "ENSMUSG00000008348", "ENSMUSG00000019699", "ENSMUSG00000022462"
       )
     )
-    expect <- df(
+    expect <- .df(
       id_sp1 = c("10000", "54407", "7316"),
       ensembl_gene_sp2 = c(
         "ENSMUSG00000019699", "ENSMUSG00000022462", "ENSMUSG00000008348"
@@ -291,18 +291,18 @@ test_that(
     # 1:Many mappings from human to mouse
     gene_ids <- "8813"
 
-    bm_id <- df(
+    bm_id <- .df(
       ensembl_gene_id = "ENSG00000000419",
       entrezgene = "8813"
     )
 
-    bm_hom <- df(
+    bm_hom <- .df(
       ensembl_gene_id = rep("ENSG00000000419", 2),
       mmusculus_homolog_ensembl_gene = c(
         "ENSMUSG00000078919", "ENSMUSG00000093752"
       )
     )
-    expect <- df(
+    expect <- .df(
       id_sp1 = c("8813", "8813"),
       ensembl_gene_sp2 = c("ENSMUSG00000078919", "ENSMUSG00000093752")
     )
@@ -331,17 +331,17 @@ test_that(
     # (this is no longer a many:1 in ensembl: 2018-11)
     gene_ids <- c("7543", "7544") # ZFX and ZFY
 
-    bm_id <- df(
+    bm_id <- .df(
       ensembl_gene_id = c("ENSG00000005889", "ENSG00000067646"),
       entrezgene = gene_ids
     )
 
-    bm_hom <- df(
+    bm_hom <- .df(
       ensembl_gene_id = bm_id$ensembl_gene_id,
       mmusculus_homolog_ensembl_gene = rep("ENSMUSG00000079509", 2)
     )
 
-    expect <- df(
+    expect <- .df(
       id_sp1 = gene_ids,
       ensembl_gene_sp2 = bm_hom$mmusculus_homolog_ensembl_gene
     )
@@ -369,21 +369,21 @@ test_that(
     # - the gene should still be present in the output
     gene_ids <- c("10000", "3", "54407")
 
-    bm_id <- df(
+    bm_id <- .df(
       ensembl_gene_id = c(
         "ENSG00000117020", "ENSG00000256069", "ENSG00000134294"
       ),
       entrezgene = gene_ids
     )
 
-    bm_hom <- df(
+    bm_hom <- .df(
       ensembl_gene_id = bm_id$ensembl_gene_id,
       mmusculus_homolog_ensembl_gene = c(
         "ENSMUSG00000019699", "", "ENSMUSG00000022462"
       )
     )
 
-    expect <- df(
+    expect <- .df(
       id_sp1 = c("10000", "3", "54407"),
       ensembl_gene_sp2 = c(
         "ENSMUSG00000019699", NA, "ENSMUSG00000022462"
@@ -420,7 +420,7 @@ test_that(
     testthat::skip_if_not_installed("mockery")
 
     # No genes
-    expect <- df(
+    expect <- .df(
       id_sp1 = character(0),
       id_sp2 = character(0)
     )
@@ -446,11 +446,11 @@ test_that(
 
     # Ensembl to ensembl
     gene_ids <- "ENSG00000134294"
-    bm_hom <- df(
+    bm_hom <- .df(
       ensembl_gene_id = gene_ids,
       mmusculus_homolog_ensembl_gene = "ENSMUSG00000022462"
     )
-    expect <- df(
+    expect <- .df(
       id_sp1 = "ENSG00000134294",
       id_sp2 = "ENSMUSG00000022462"
     )
@@ -480,11 +480,11 @@ test_that(
 
     # Then reversed:
     gene_ids <- "ENSMUSG00000022462"
-    bm_hom <- df(
+    bm_hom <- .df(
       ensembl_gene_id = gene_ids,
       hsapiens_homolog_ensembl_gene = "ENSG00000134294"
     )
-    expect <- df(
+    expect <- .df(
       id_sp1 = "ENSMUSG00000022462",
       id_sp2 = "ENSG00000134294"
     )
@@ -519,12 +519,12 @@ test_that(
     # those genes with an entrez gene id
     gene_ids <- "ENSG00000284192"
 
-    bm_hom <- df(
+    bm_hom <- .df(
       ensembl_gene_id = gene_ids,
       mmusculus_homolog_ensembl_gene = NA_character_
     )
 
-    expect <- df(
+    expect <- .df(
       id_sp1 = gene_ids,
       id_sp2 = NA_character_
     )
@@ -552,7 +552,7 @@ test_that(
     # Human ensembl gene with multiple mouse orthologues
     gene_ids <- "ENSG00000002726"
 
-    bm_hom <- df(
+    bm_hom <- .df(
       ensembl_gene_id = gene_ids,
       mmusculus_homolog_ensembl_gene = c(
         "ENSMUSG00000029811", "ENSMUSG00000029813", "ENSMUSG00000039215",
@@ -560,7 +560,7 @@ test_that(
       )
     )
 
-    expect <- df(
+    expect <- .df(
       id_sp1 = bm_hom$ensembl_gene_id,
       id_sp2 = bm_hom$mmusculus_homolog_ensembl_gene
     )
@@ -596,15 +596,15 @@ test_that(
     # One-to-one ensembl to ensembl: human to mouse, single one-to-one
     # example
     gene_ids <- "ENSG00000134294"
-    bm_hom_sp1 <- df(
+    bm_hom_sp1 <- .df(
       ensembl_gene_id = gene_ids,
       mmusculus_homolog_ensembl_gene = "ENSMUSG00000022462"
     )
-    bm_hom_sp2 <- df(
+    bm_hom_sp2 <- .df(
       ensembl_gene_id = bm_hom_sp1$mmusculus_homolog_ensembl_gene,
       hsapiens_homolog_ensembl_gene = bm_hom_sp1$ensembl_gene_id
     )
-    expect <- df(
+    expect <- .df(
       id_sp1 = bm_hom_sp1$ensembl_gene_id,
       id_sp2 = bm_hom_sp1$mmusculus_homolog_ensembl_gene
     )
@@ -635,7 +635,7 @@ test_that(
     # 1:many
     gene_ids <- "ENSG00000002726"
 
-    bm_hom_sp1 <- df(
+    bm_hom_sp1 <- .df(
       ensembl_gene_id = gene_ids,
       mmusculus_homolog_ensembl_gene = c(
         "ENSMUSG00000029811", "ENSMUSG00000029813", "ENSMUSG00000039215",
@@ -643,12 +643,12 @@ test_that(
       )
     )
 
-    bm_hom_sp2 <- df(
+    bm_hom_sp2 <- .df(
       ensembl_gene_id = bm_hom_sp1$mmusculus_homolog_ensembl_gene,
       hsapiens_homolog_ensembl_gene = bm_hom_sp1$ensembl_gene_id
     )
 
-    expect <- df(
+    expect <- .df(
       id_sp1 = bm_hom_sp1$ensembl_gene_id[1],
       id_sp2 = NA_character_
     )
@@ -681,12 +681,12 @@ test_that(
 
     gene_ids <- "ENSMUSG00000029811"
 
-    bm_hom_sp1 <- df(
+    bm_hom_sp1 <- .df(
       ensembl_gene_id = gene_ids,
       hsapiens_homolog_ensembl_gene = "ENSG00000002726"
     )
 
-    bm_hom_sp2 <- df(
+    bm_hom_sp2 <- .df(
       ensembl_gene_id = bm_hom_sp1$hsapiens_homolog_ensembl_gene,
       mmusculus_homolog_ensembl_gene = c(
         "ENSMUSG00000029811", "ENSMUSG00000029813", "ENSMUSG00000039215",
@@ -694,7 +694,7 @@ test_that(
       )
     )
 
-    expect <- df(
+    expect <- .df(
       id_sp1 = bm_hom_sp1$ensembl_gene_id[1],
       id_sp2 = NA_character_
     )
@@ -736,12 +736,12 @@ test_that("keep_complete_biomart_results", {
 test_that("select_and_filter", {
   testthat::skip_if_not_installed("mockery")
 
-  my_bm <- df(
+  my_bm <- .df(
     ensembl_gene_id = "ENSG01234567890",
     entrezgene = "12345"
   )
 
-  my_missingness_bm <- df(
+  my_missingness_bm <- .df(
     ensembl_gene_id = c("ENSG01234567890", "ENSG09876543210"),
     entrezgene = c("12345", "")
   )
@@ -753,7 +753,7 @@ test_that("select_and_filter", {
         "ensembl_gene_id",
         values = NA_character_, colnames(my_bm), "mock_mart"
       ),
-      df(
+      .df(
         ensembl_gene_id = character(0), entrezgene = character(0)
       ),
       info = "no valid values in the input: output is empty"

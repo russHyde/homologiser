@@ -34,7 +34,7 @@ test_that("get_duplicates", {
 })
 
 test_that("drop_incomplete_cases", {
-  a <- data.frame(x = 1:2, y = c(0, NA), z = c(NA, 1))
+  a <- .df(x = 1:2, y = c(0, NA), z = c(NA, 1))
 
   expect_error(
     drop_incomplete_cases(),
@@ -54,8 +54,8 @@ drop_incomplete_cases"
 
   expect_equal(
     object = drop_incomplete_cases(a),
-    expected = data.frame(x = numeric(0), y = numeric(0), z = numeric(0)),
-    info = "Filtering on all columns of a df with NAs on all rows"
+    expected = .df(x = numeric(0), y = numeric(0), z = numeric(0)),
+    info = "Filtering on all columns of a .df with NAs on all rows"
   )
 
   expect_equal(

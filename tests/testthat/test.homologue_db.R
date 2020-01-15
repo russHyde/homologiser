@@ -43,7 +43,7 @@ test_that("is_valid_mart", {
 
   with_mock(
     listAttributes = mockery::mock(
-      df(name = "required_id", description = "description")
+      .df(name = "required_id", description = "description")
     ),
     expect_true(
       is_valid_mart(my_mart, "required_id"),
