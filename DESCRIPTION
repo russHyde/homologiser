@@ -16,7 +16,8 @@ BugReports: https://github.com/russHyde/homologiser/issues
 Suggests:
     testthat (>= 2.1.0),
     covr,
-    mockery
+    mockery,
+    tibble
 Imports:
     dplyr,
     magrittr,
@@ -24,6 +25,7 @@ Imports:
     methods,
     rlang
 Collate:
+    'convert_species.R'
     'data_manipulation.R'
     'homologue_db.R'
     'homologue_filters.R'

@@ -2,8 +2,17 @@
 
 ## helpers for test_that
 
+# TODO: implement row.name NULL-ing
 .df <- function(...) {
   data.frame(..., stringsAsFactors = FALSE)
+}
+
+.tbl <- function(...) {
+  if (requireNamespace("tibble", quietly = TRUE)) {
+    tibble::tibble(...)
+  } else {
+    warning("package `tibble` required for tests")
+  }
 }
 
 ###############################################################################
