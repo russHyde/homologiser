@@ -72,9 +72,13 @@ homologiser::map_to_homologues(
 ```
 
 Note that
+
 - "ENSGxxxxxx2726" maps to several mouse genes
+
 - "ENSGxxxx134294" maps to a single mouse gene
+
 - "ENSGxxxx284192" maps to no mouse genes
+
 - although that function-call was a bit wordy, human -> mouse is the default
   direction and ensembl-gene is the default ID-type, so we only really needed
   to type `map_to_homologues(human_genes, human_biomart, mouse_biomart)`
